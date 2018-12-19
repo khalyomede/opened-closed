@@ -1,0 +1,35 @@
+{
+	"name": "opened-closed",
+	"version": "0.1.0",
+	"description": "Return a boolean or a string when your store is opened.",
+	"main": "index.js",
+	"repository": "https://github.com/khalyomede/opened-closed",
+	"author": "Khalyomede <khalyomede@gmail.com>",
+	"license": "MIT",
+	"devDependencies": {
+		"@babel/core": "^7.2.2",
+		"@types/node": "10.*",
+		"babel": "^6.23.0",
+		"babel-preset-env": "^1.7.0",
+		"browserify": "^16.2.3",
+		"chai": "4.*",
+		"codecov": "^3.1.0",
+		"gulp": "4.*",
+		"gulp-babel": "^8.0.0",
+		"gulp-bro": "^1.0.3",
+		"gulp-browserify": "^0.5.1",
+		"gulp-rename": "1.*",
+		"gulp-tap": "^1.0.1",
+		"gulp-typescript": "5.*",
+		"gulp-uglify-es": "1.*",
+		"gulp-umd": "^2.0.0",
+		"mocha": "5.*",
+		"nyc": "^13.1.0",
+		"typescript": "3.*"
+	},
+	"scripts": {
+		"dev": "gulp watch",
+		"prod": "gulp prod",
+		"test": "nyc mocha test/opened-closed && nyc report --reporter=text-lcov > coverage.lcov && codecov"
+	}
+}
