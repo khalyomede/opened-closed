@@ -63,17 +63,17 @@ All the examples can be found in the folder `example` of this repository.
 ### Example 1: checking if a store is opened now
 
 ```javascript
-const OpenedClosed = require("opened-closed");
+const OpenedClosed = require("../lib/main");
 
 const store = new OpenedClosed({
 	timezone: "GMT+0100",
 	openings: {
 		monday: [
-			{ start: "22:00:00", end: "23:59:59" },
-			{ start: "15:00:00", end: "17:59:59" }
+			{ start: "10:00", end: "13:00" },
+			{ start: "15:00", end: "18:00" }
 		]
 	}
 });
 
-console.log(store.opened()); // true or false
+console.log(store.opened());
 ```
