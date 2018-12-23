@@ -10,4 +10,4 @@ const store = new OpenedClosed({
 	}
 });
 
-console.log(store._now()); // true or false
+console.log(store.opened()); // true or false
