@@ -301,5 +301,3 @@ class OpenedClosed {
 		return numbers.length === 0 ? 0 : Math.max(...numbers);
 	}
 }
-
-export = OpenedClosed;

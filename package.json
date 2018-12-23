@@ -30,6 +30,6 @@
 	"scripts": {
 		"dev": "gulp watch",
 		"prod": "gulp prod",
-		"test": "nyc mocha test/opened-closed && nyc report --reporter=text-lcov > coverage.lcov && codecov"
+		"test": "nyc mocha test/opened-closed"
 	}
 }

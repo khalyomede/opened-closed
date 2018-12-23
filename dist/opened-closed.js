@@ -1,10 +1,21 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
 
 var OpenedClosed =
 /** @class */
 function () {
   function OpenedClosed(options) {
+    if (options === undefined || options === null || options.constructor !== Object) {
+      throw new Error(OpenedClosed.ERR_OPTIONS_NOT_OBJECT);
+    }
+
+    if (Object.keys(options).length === 0) {
+      throw new Error(OpenedClosed.ERR_OPTIONS_EMPTY);
+    }
+
+    if ("timezone" in options === false) {
+      throw new Error(OpenedClosed.ERR_OPTIONS_MISSING_TIMEZONE);
+    }
+
     this.options = options;
     this.now = new Date();
 
@@ -39,18 +50,44 @@ function () {
   };
 
   OpenedClosed.prototype.availability = function () {
-    var availability = this.options.language.closed || "closed";
+    var availability = this.options.language.closed;
 
     if (this.opened() === true) {
-      availability = this.options.language.opened || "opened";
+      availability = this.options.language.opened;
     }
 
     return availability;
   };
 
-  OpenedClosed.prototype.toString = function () {
-    // return this.availability() + " " + this.closeIn();
-    return "";
+  OpenedClosed.prototype.closeIn = function () {
+    var closesIn = [];
+
+    var now = this._now();
+
+    for (var day in this.options.openings) {
+      var openings = this.options.openings[day];
+
+      if (this._nowIsTheDay(day) === true) {
+        for (var _i = 0, openings_2 = openings; _i < openings_2.length; _i++) {
+          var opening = openings_2[_i];
+
+          var start = this._getDateFromString(opening.start, day);
+
+          var end = this._getDateFromString(opening.end, day);
+
+          if (start <= now && now <= end) {
+            var closeIn_1 = this._datesDifferenceToEpoch(now, end);
+
+            closesIn.push(closeIn_1);
+            break;
+          }
+        }
+      }
+    }
+
+    var closeIn = this._max(closesIn);
+
+    return closeIn;
   };
 
   OpenedClosed.prototype._currentYear = function () {
@@ -65,24 +102,16 @@ function () {
     return this.now.getDate();
   };
 
-  OpenedClosed.prototype._currentHour = function () {
-    return this.now.getHours();
-  };
-
-  OpenedClosed.prototype._currentMinute = function () {
-    return this.now.getMinutes();
-  };
-
-  OpenedClosed.prototype._currentSecond = function () {
-    return this.now.getSeconds();
-  };
-
   OpenedClosed.prototype._dayNow = function () {
     return this.now.getDay();
   };
 
   OpenedClosed.prototype._now = function () {
     return new Date();
+  };
+
+  OpenedClosed.prototype._currentDate = function (options) {
+    return options.year + "-" + options.month + "-" + options.day + " " + options.time + " " + this.options.timezone;
   };
 
   OpenedClosed.prototype._getDateFromString = function (dateString, dayString) {
@@ -92,7 +121,13 @@ function () {
 
     var day = this._currentDay();
 
-    var date = year + "-" + month + "-" + day + " " + dateString + " " + (this.options.timezone || "");
+    var date = this._currentDate({
+      year: year,
+      month: month,
+      day: day,
+      time: dateString
+    });
+
     return new Date(date);
   };
 
@@ -127,6 +162,9 @@ function () {
       case "saturday":
         dayNumber = 6;
         break;
+
+      default:
+        throw new Error(OpenedClosed.ERR_UNSUPPORTED_DAY);
     }
 
     return dayNumber;
@@ -148,17 +186,79 @@ function () {
       };
     }
 
+    var language = this.options.language;
+
+    if (language === null || language === undefined || language.constructor !== Object) {
+      throw new Error(OpenedClosed.ERR_OPTIONS_LANGUAGE_NOT_OBJECT);
+    }
+
     if ("opened" in this.options.language === false) {
-      this.options.language.opened = "opened";
+      this.options.language.opened = OpenedClosed.DEFAULT_LANGUAGE_OPENED;
+    }
+
+    var opened = this.options.language.opened;
+
+    if (opened === null || opened === undefined || opened.constructor !== String) {
+      throw new Error(OpenedClosed.ERR_OPTIONS_LANGUAGE_OPENED_NOT_STRING);
+    }
+
+    if (opened.trim().length === 0) {
+      throw new Error(OpenedClosed.ERR_OPTIONS_LANGUAGE_OPENED_EMPTY);
     }
 
     if ("closed" in this.options.language === false) {
-      this.options.language.closed = "closed";
+      this.options.language.closed = OpenedClosed.DEFAULT_LANGUAGE_CLOSED;
+    }
+
+    var closed = this.options.language.closed;
+
+    if (closed === null || closed === undefined || closed.constructor !== String) {
+      throw new Error(OpenedClosed.ERR_OPTIONS_LANGUAGE_CLOSED_NOT_STRING);
+    }
+
+    if (closed.trim().length === 0) {
+      throw new Error(OpenedClosed.ERR_OPTIONS_LANGUAGE_CLOSED_EMPTY);
     }
   };
 
+  OpenedClosed.prototype._dateToEpoch = function (date) {
+    if (date === null || date === undefined || date.constructor !== Date) {
+      throw new Error(OpenedClosed.ERR_INTERNAL_NOT_DATE);
+    }
+
+    var epoch = date.getTime() / 1000;
+    epoch = parseInt(epoch.toString());
+    return epoch;
+  };
+
+  OpenedClosed.prototype._datesDifferenceToEpoch = function (start, end) {
+    var startEpoch = this._dateToEpoch(start);
+
+    var endEpoch = this._dateToEpoch(end);
+
+    return endEpoch - startEpoch;
+  };
+
+  OpenedClosed.prototype._max = function (numbers) {
+    if (numbers === null || numbers === undefined || numbers.constructor !== Array) {
+      throw new Error(OpenedClosed.ERR_INTERNAL_NOT_ARRAY);
+    }
+
+    return numbers.length === 0 ? 0 : Math.max.apply(Math, numbers);
+  };
+
+  OpenedClosed.ERR_OPTIONS_NOT_OBJECT = "expected parameter 1 to be an object";
+  OpenedClosed.ERR_OPTIONS_EMPTY = "options is empty";
+  OpenedClosed.ERR_OPTIONS_MISSING_TIMEZONE = "options is missing timezone";
+  OpenedClosed.ERR_OPTIONS_LANGUAGE_NOT_OBJECT = "language options should be an object";
+  OpenedClosed.ERR_OPTIONS_LANGUAGE_OPENED_NOT_STRING = "opened language is string";
+  OpenedClosed.ERR_OPTIONS_LANGUAGE_OPENED_EMPTY = "opened language is empty";
+  OpenedClosed.ERR_OPTIONS_LANGUAGE_CLOSED_NOT_STRING = "closed language is string";
+  OpenedClosed.ERR_OPTIONS_LANGUAGE_CLOSED_EMPTY = "closed language is empty";
+  OpenedClosed.ERR_UNSUPPORTED_DAY = "unsupported day";
+  OpenedClosed.ERR_INTERNAL_NOT_DATE = "internal error: invalid date";
+  OpenedClosed.ERR_INTERNAL_NOT_ARRAY = "internal error: invalid array";
+  OpenedClosed.DEFAULT_LANGUAGE_CLOSED = "closed";
+  OpenedClosed.DEFAULT_LANGUAGE_OPENED = "opened";
   return OpenedClosed;
 }();
-
-module.exports = OpenedClosed;
-},{}]},{},[1])

@@ -8,21 +8,27 @@ const bro = require("gulp-bro");
 const umd = require("gulp-umd");
 const babel = require("gulp-babel");
 
-const ts = function() {
+const lib = function() {
 	return gulp
-		.src("src/**/*.ts")
+		.src("src/main.ts")
 		.pipe(typescript())
+		.pipe(
+			babel({
+				presets: ["env"]
+			})
+		)
 		.pipe(gulp.dest("lib"));
 };
 
-const watch = function() {
-	return gulp.watch("src/**/*.ts", gulp.parallel("ts"));
-};
-
-const prod = function() {
+const dist = function() {
 	return gulp
-		.src("src/**/*.ts")
+		.src("src/opened-closed.ts")
 		.pipe(typescript())
+		.pipe(
+			babel({
+				presets: ["env"]
+			})
+		)
 		.pipe(
 			rename({
 				basename: "opened-closed"
@@ -32,11 +38,18 @@ const prod = function() {
 		.pipe(uglify())
 		.pipe(
 			rename({
-				basename: "opened-closed",
 				suffix: ".min"
 			})
 		)
 		.pipe(gulp.dest("dist"));
 };
 
-module.exports = { ts, watch, prod };
+const watch = function() {
+	return gulp.watch("src/main.ts", gulp.series("lib"));
+};
+
+const prod = async function() {
+	return gulp.parallel("lib", "dist");
+};
+
+module.exports = { lib, dist, watch, prod };

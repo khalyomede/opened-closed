@@ -214,4 +214,67 @@ describe("usage", function() {
 
 		expect(store.availability()).to.be.equal("closed");
 	});
+
+	it("should return that the store closes in 0 seconds if there is no matching time span", function() {
+		OpenedClosed.prototype._now = function() {
+			return new Date(`2018-12-17 10:00:00 GMT+0100`);
+		};
+		OpenedClosed.prototype._dayNow = function() {
+			return 1; // monday
+		};
+		OpenedClosed.prototype._currentDay = function() {
+			return 17;
+		};
+
+		const store = new OpenedClosed({
+			timezone: "GMT+0100",
+			openings: {
+				monday: [{ start: "15:00", end: "18:00" }]
+			}
+		});
+
+		expect(store.closeIn()).to.be.equal(0);
+	});
+
+	it("should return that the store closes in 3600 seconds (1h00) if there is a time span in one hour", function() {
+		OpenedClosed.prototype._now = function() {
+			return new Date(`2018-12-17 17:00:00 GMT+0100`);
+		};
+		OpenedClosed.prototype._dayNow = function() {
+			return 1; // monday
+		};
+		OpenedClosed.prototype._currentDay = function() {
+			return 17;
+		};
+
+		const store = new OpenedClosed({
+			timezone: "GMT+0100",
+			openings: {
+				monday: [{ start: "15:00", end: "18:00" }]
+			}
+		});
+
+		expect(store.closeIn()).to.be.equal(3600);
+	});
+
+	it("should return that the store closes in 3600 seconds (1h00) if there is a time span in one hour with jet lag", function() {
+		OpenedClosed.prototype._now = function() {
+			return new Date(`2018-12-17 11:00:00 GMT-0500`);
+		};
+		OpenedClosed.prototype._dayNow = function() {
+			return 1; // monday
+		};
+		OpenedClosed.prototype._currentDay = function() {
+			return 17;
+		};
+
+		const store = new OpenedClosed({
+			timezone: "GMT+0100",
+			openings: {
+				monday: [{ start: "15:00", end: "18:00" }]
+			}
+		});
+
+		expect(store.closeIn()).to.be.equal(3600);
+	});
 });
