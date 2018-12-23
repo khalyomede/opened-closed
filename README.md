@@ -7,20 +7,19 @@
 Provides availabiltiy and near-to-close information from periods.
 
 ```javascript
+const OpenedClosed = require("opened-closed");
+
 const store = new OpenedClosed({
-  attendances: [
-    { day: 'monday', start: '10:00:00', end: '13:00:00' },
-    { day: 'monday', start: '15:00:00', end: '18:00:00' }
-  ]
+	timezone: "GMT+0100",
+	openings: {
+		monday: [
+			{ start: "10:00", end: "13:00" },
+			{ start: "15:00", end: "18:00" }
+		]
+	}
 });
 
-// Now we are 11:30:09
-
-console.log(store.availability());
-```
-
-```bash
-"opened"
+console.log(store.opened());
 ```
 
 ## Summary
@@ -49,39 +48,32 @@ Include the following script in your project:
 npm install --save opened-closed@0.*
 ```
 
-or with Yarn
-
-```bash
-yarn add opened-closed@0.*
-```
-
 2. Import it in your script:
 
 ```bash
 const OpenedClosed = require('opened-closed');
 ```
 
-or with ES6
-
-```bash
-import * as OpenedClosed from "opened-closed";
-```
-
 ## Usage
 
-- [Example 1: getting started](#example-1-getting-started)
+All the examples can be found in the folder `example` of this repository.
 
-### Example 1: getting started
+- [Example 1: checking if a store is opened now](#example-1-checking-if-a-store-is-opened-now)
+
+### Example 1: checking if a store is opened now
 
 ```javascript
 const OpenedClosed = require("opened-closed");
 
-const availability = new OpenedClosed({
-  attendances: [
-    { day: "monday", start: "10:00:00", end: "13:00:00" },
-    { day: "monday", start: "15:00:00", end: "18:00:00" }
-  ]
-}).toString();
+const store = new OpenedClosed({
+	timezone: "GMT+0100",
+	openings: {
+		monday: [
+			{ start: "22:00:00", end: "23:59:59" },
+			{ start: "15:00:00", end: "17:59:59" }
+		]
+	}
+});
 
-console.log(availability); // "opened"
+console.log(store.opened()); // true or false
 ```
