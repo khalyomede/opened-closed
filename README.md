@@ -11,13 +11,13 @@ Provides availabiltiy and near-to-close information from periods.
 const OpenedClosed = require("opened-closed");
 
 const store = new OpenedClosed({
-	timezone: "GMT+0100",
-	openings: {
-		monday: [
-			{ start: "10:00", end: "13:00" },
-			{ start: "15:00", end: "18:00" }
-		]
-	}
+  timezone: "GMT+0100",
+  openings: {
+    monday: [
+      { start: "10:00", end: "13:00" },
+      { start: "15:00", end: "18:00" }
+    ]
+  }
 });
 
 console.log(store.opened());
