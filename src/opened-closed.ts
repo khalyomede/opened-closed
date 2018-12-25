@@ -1,10 +1,16 @@
-interface Opening {
+interface TimeSpan {
 	start: string;
 	end: string;
 }
 
-interface Openings {
-	day: Array<Opening>;
+interface Closing {
+	reason?: string;
+	from: Date;
+	to: Date;
+}
+
+interface TimeSpans {
+	day: Array<TimeSpan>;
 }
 
 interface Language {
@@ -15,7 +21,8 @@ interface Language {
 interface Options {
 	locale: string;
 	timezone: string;
-	openings: Openings;
+	openings: TimeSpans;
+	closings: Array<Closing>;
 	language: Language;
 }
 
@@ -23,7 +30,7 @@ class OpenedClosed {
 	private options: Options;
 	private now: Date;
 
-	private static ERR_OPTIONS_NOT_OBJECT =
+	private static readonly ERR_OPTIONS_NOT_OBJECT =
 		"expected parameter 1 to be an object";
 	private static ERR_OPTIONS_EMPTY = "options is empty";
 	private static ERR_OPTIONS_MISSING_TIMEZONE = "options is missing timezone";
@@ -38,18 +45,25 @@ class OpenedClosed {
 	private static ERR_OPTIONS_LANGUAGE_CLOSED_EMPTY =
 		"closed language is empty";
 	private static ERR_UNSUPPORTED_DAY = "unsupported day";
+	private static ERR_MISSING_FROM_KEY = 'key "from" is missing';
+	private static ERR_MISSING_TO_KEY = 'key "to" is missing';
+	private static ERR_KEY_FROM_NOT_DATE = 'key "from" should be a Date';
+	private static ERR_KEY_TO_NOT_DATE = 'key "to" should be a Date';
+	private static ERR_CLOSING_DATE_CONTAINS_UNSAFE_DATES =
+		'keys "from" and "to" have the same date, which is unsafe (if you set the same date for those dates, please precise a different time for both)';
+	private static ERR_CLOSINGS_DATE_NOT_OBJECT =
+		"each closing dates should be an object";
+	private static ERR_TIME_NOT_CORRECT = "the time is not valid";
+	private static ERR_TIME_SHOULD_BE_STRING = "the time should be a string";
 	private static ERR_INTERNAL_NOT_DATE = "internal error: invalid date";
 	private static ERR_INTERNAL_NOT_ARRAY = "internal error: invalid array";
-
+	private static ERR_INTERNAL_REVERTED_DATES =
+		"internal error: reverted dates";
 	private static DEFAULT_LANGUAGE_CLOSED = "closed";
 	private static DEFAULT_LANGUAGE_OPENED = "opened";
 
 	constructor(options: Options) {
-		if (
-			options === undefined ||
-			options === null ||
-			options.constructor !== Object
-		) {
+		if (!this._isObject(options)) {
 			throw new Error(OpenedClosed.ERR_OPTIONS_NOT_OBJECT);
 		}
 
@@ -64,6 +78,7 @@ class OpenedClosed {
 		this.options = options;
 		this.now = new Date();
 
+		this._throwErrorIfClosingDateIncorrect();
 		this._autoFillLanguage();
 	}
 
@@ -75,12 +90,13 @@ class OpenedClosed {
 		for (const day in this.options.openings) {
 			const openings = this.options.openings[day];
 
-			if (this._nowIsTheDay(day) === true) {
+			if (this._nowIsTheDay(day)) {
 				for (const opening of openings) {
 					const start = this._getDateFromString(opening.start, day);
 					const end = this._getDateFromString(opening.end, day);
+					const nowIsClosed = this._nowIsClosed();
 
-					if (start <= now && now <= end) {
+					if (this._dateBetween(now, start, end) && !nowIsClosed) {
 						opened = true;
 
 						break;
@@ -110,12 +126,12 @@ class OpenedClosed {
 		for (const day in this.options.openings) {
 			const openings = this.options.openings[day];
 
-			if (this._nowIsTheDay(day) === true) {
+			if (this._nowIsTheDay(day)) {
 				for (const opening of openings) {
 					const start = this._getDateFromString(opening.start, day);
 					const end = this._getDateFromString(opening.end, day);
 
-					if (start <= now && now <= end) {
+					if (this._dateBetween(now, start, end)) {
 						const closeIn = this._datesDifferenceToEpoch(now, end);
 
 						closesIn.push(closeIn);
@@ -158,6 +174,14 @@ class OpenedClosed {
 	}
 
 	private _getDateFromString(dateString: string, dayString: string): Date {
+		if (!this._isString(dateString)) {
+			throw new Error(OpenedClosed.ERR_TIME_SHOULD_BE_STRING);
+		}
+
+		if (dateString.length === 0) {
+			throw new Error(OpenedClosed.ERR_TIME_NOT_CORRECT);
+		}
+
 		const year = this._currentYear();
 		const month = this._currentMonth();
 		const day = this._currentDay();
@@ -167,6 +191,12 @@ class OpenedClosed {
 			day: day,
 			time: dateString
 		});
+
+		const result = new Date(date);
+
+		if (isNaN(result.getTime())) {
+			throw new Error(OpenedClosed.ERR_TIME_NOT_CORRECT);
+		}
 
 		return new Date(date);
 	}
@@ -221,11 +251,7 @@ class OpenedClosed {
 
 		const language = this.options.language;
 
-		if (
-			language === null ||
-			language === undefined ||
-			language.constructor !== Object
-		) {
+		if (!this._isObject(language)) {
 			throw new Error(OpenedClosed.ERR_OPTIONS_LANGUAGE_NOT_OBJECT);
 		}
 
@@ -235,11 +261,7 @@ class OpenedClosed {
 
 		const opened = this.options.language.opened;
 
-		if (
-			opened === null ||
-			opened === undefined ||
-			opened.constructor !== String
-		) {
+		if (!this._isString(opened)) {
 			throw new Error(
 				OpenedClosed.ERR_OPTIONS_LANGUAGE_OPENED_NOT_STRING
 			);
@@ -255,11 +277,7 @@ class OpenedClosed {
 
 		const closed = this.options.language.closed;
 
-		if (
-			closed === null ||
-			closed === undefined ||
-			closed.constructor !== String
-		) {
+		if (!this._isString(closed)) {
 			throw new Error(
 				OpenedClosed.ERR_OPTIONS_LANGUAGE_CLOSED_NOT_STRING
 			);
@@ -271,7 +289,7 @@ class OpenedClosed {
 	}
 
 	private _dateToEpoch(date: Date): number {
-		if (date === null || date === undefined || date.constructor !== Date) {
+		if (!this._isDate(date)) {
 			throw new Error(OpenedClosed.ERR_INTERNAL_NOT_DATE);
 		}
 
@@ -290,14 +308,134 @@ class OpenedClosed {
 	}
 
 	private _max(numbers: Array<number>): number {
-		if (
-			numbers === null ||
-			numbers === undefined ||
-			numbers.constructor !== Array
-		) {
+		if (!this._isArray(numbers)) {
 			throw new Error(OpenedClosed.ERR_INTERNAL_NOT_ARRAY);
 		}
 
 		return numbers.length === 0 ? 0 : Math.max(...numbers);
+	}
+
+	private _nowIsClosed(): boolean {
+		let nowIsClosed = this._hasOpenings() ? false : true;
+
+		const closings = this.options.closings;
+		const now = this._now();
+
+		if (this._isArray(closings)) {
+			for (const closing of closings) {
+				if (this._dateBetween(now, closing.from, closing.to)) {
+					nowIsClosed = true;
+
+					break;
+				}
+			}
+		}
+
+		return nowIsClosed;
+	}
+
+	private _throwErrorIfClosingDateIncorrect() {
+		const closings =
+			"closings" in this.options ? this.options.closings : undefined;
+
+		if (this._isArray(closings)) {
+			for (const closing of closings) {
+				if (!this._isObject(closing)) {
+					throw new Error(OpenedClosed.ERR_CLOSINGS_DATE_NOT_OBJECT);
+				}
+
+				if ("from" in closing === false) {
+					throw new Error(OpenedClosed.ERR_MISSING_FROM_KEY);
+				}
+
+				if ("to" in closing === false) {
+					throw new Error(OpenedClosed.ERR_MISSING_TO_KEY);
+				}
+
+				const from = closing.from;
+				const to = closing.to;
+
+				if (!this._isDate(from)) {
+					throw new Error(OpenedClosed.ERR_KEY_FROM_NOT_DATE);
+				}
+
+				if (!this._isDate(to)) {
+					throw new Error(OpenedClosed.ERR_KEY_TO_NOT_DATE);
+				}
+
+				if (from.toISOString() === to.toISOString()) {
+					throw new Error(
+						OpenedClosed.ERR_CLOSING_DATE_CONTAINS_UNSAFE_DATES
+					);
+				}
+			}
+		}
+	}
+
+	private _dateBetween(
+		date: Date,
+		lowerDate: Date,
+		greaterDate: Date
+	): boolean {
+		const items = [date, lowerDate, greaterDate];
+
+		for (const item of items) {
+			if (!this._isDate(item)) {
+				throw new Error(OpenedClosed.ERR_INTERNAL_NOT_DATE);
+			}
+		}
+
+		if (lowerDate !== greaterDate && lowerDate > greaterDate) {
+			throw new Error(OpenedClosed.ERR_INTERNAL_REVERTED_DATES);
+		}
+
+		return lowerDate <= date && date <= greaterDate;
+	}
+
+	private _isNull(mixed): boolean {
+		return mixed === null;
+	}
+
+	private _isUndefined(mixed): boolean {
+		return mixed === undefined;
+	}
+
+	private _isDate(mixed): boolean {
+		return (
+			!this._isNull(mixed) &&
+			!this._isUndefined(mixed) &&
+			mixed.constructor === Date
+		);
+	}
+
+	private _isObject(mixed): boolean {
+		return (
+			!this._isNull(mixed) &&
+			!this._isUndefined(mixed) &&
+			mixed.constructor === Object
+		);
+	}
+
+	private _isArray(mixed): boolean {
+		return (
+			!this._isNull(mixed) &&
+			!this._isUndefined(mixed) &&
+			mixed.constructor === Array
+		);
+	}
+
+	private _isString(mixed): boolean {
+		return (
+			!this._isNull(mixed) &&
+			!this._isUndefined(mixed) &&
+			mixed.constructor === String
+		);
+	}
+
+	private _hasOpenings(): boolean {
+		return (
+			"openings" in this.options &&
+			Object.keys(this.options.openings).length > 0
+		);
 	}
 }
