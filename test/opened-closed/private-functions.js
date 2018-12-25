@@ -127,8 +127,8 @@ describe("private functions", function() {
 		it("should return the exact day as now", function() {
 			const instance = new OpenedClosed(options);
 
-			expect(instance._now().toISOString()).to.be.equal(
-				new Date().toISOString()
+			expect(instance._now().toString()).to.be.equal(
+				new Date().toString()
 			);
 		});
 	});
