@@ -2,7 +2,7 @@
 	"name": "opened-closed",
 	"version": "0.1.0",
 	"description": "Return a boolean or a string when your store is opened.",
-	"main": "index.js",
+	"main": "lib/main.js",
 	"repository": "https://github.com/khalyomede/opened-closed",
 	"author": "Khalyomede <khalyomede@gmail.com>",
 	"license": "MIT",
