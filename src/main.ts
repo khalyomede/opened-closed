@@ -26,8 +26,65 @@ interface Options {
 	language: Language;
 }
 
+/**
+ * @description Provides store availabiltiy, near-to-close information and more.
+ * @kind class
+ * @license MIT
+ * @since 0.1.0
+ * @param {Object} options The settings.
+ * @param {String} options.timezone The timezone (in any format that Date supports).
+ * @param {Object} options.openings The openings hours.
+ * @param {Array} options.closings The closings hours.
+ * @return {OpenedClosed}
+ * @example
+ * const store = new OpenedClosed({
+ *   timezone: 'GMT+0100',
+ *   openings: {
+ *     monday: [
+ *       { start: '10:00', end: '13:00' },
+ *       { start: '15:00', end: '18:00' }
+ *     ],
+ *     wednesday: [
+ *       { start: '08:00:00', end: '16:59:59' }
+ *     ]
+ *   }
+ * });
+ * @example
+ * const store = new OpenedClosed({
+ *   timezone: 'GMT+0100',
+ *   openings: {
+ *     monday: [
+ *       { start: '10:00', end: '18:00' }
+ *     ]
+ *   },
+ *   closings: [
+ *     {
+ *       reason: 'Christmas',
+ *       from: new Date('2018-12-25 00:00:00 GMT+0100'),
+ *       to: new Date('2018-12-25 23:59:00 GMT+0100')
+ *     },
+ *     {
+ *       from: new Date('2018-12-31 00:00:00 GMT+0100'),
+ *       to: new Date('2019-01-01 23:59:00 GMT+0100')
+ *     }
+ *   ]
+ * });
+ * @example
+ * const store = new OpenedClosed({
+ *   timezone: 'GMT+0100',
+ *   openings: {
+ *     monday: [
+ *       { start: '10:00', end: '18:00' }
+ *     ]
+ *   },
+ *   language: {
+ *     opened: 'ouvert',
+ *     closed: 'fermé'
+ *   }
+ * });
+ */
 class OpenedClosed {
-	private options: Options;
+	private _options: Options;
 	private now: Date;
 
 	private static readonly ERR_OPTIONS_NOT_OBJECT =
@@ -73,7 +130,7 @@ class OpenedClosed {
 			throw new Error(OpenedClosed.ERR_OPTIONS_MISSING_TIMEZONE);
 		}
 
-		this.options = options;
+		this._options = options;
 		this.now = new Date();
 
 		this._throwErrorIfClosingDateIncorrect();
@@ -81,13 +138,26 @@ class OpenedClosed {
 		this._autoFillLanguage();
 	}
 
+	/**
+	 * @description Returns true if the store is opened right now, else returns false.
+	 * @kind member
+	 * @memberof OpenedClosed
+	 * @return {Boolean}
+	 * @since 0.1.0
+	 * @example
+	 * const store = new OpenedClosed({
+	 *   'timezone': 'GMT+0100'
+	 * });
+	 *
+	 * store.opened();
+	 */
 	public opened(): boolean {
 		let opened: boolean = false;
 
 		const now = this._now();
 
-		for (const day in this.options.openings) {
-			const openings = this.options.openings[day];
+		for (const day in this._options.openings) {
+			const openings = this._options.openings[day];
 
 			for (const opening of openings) {
 				const start = this._getDateFromString(opening.start);
@@ -109,23 +179,51 @@ class OpenedClosed {
 		return opened;
 	}
 
+	/**
+	 * @description Returns "opened" or "closed" (or the equivalent set in the language options) depending the store is opened right now or not.
+	 * @return {String}
+	 * @kind member
+	 * @memberof OpenedClosed
+	 * @since 0.1.0
+	 * @example
+	 * const store = new OpenedClosed({
+	 *   timezone: 'GMT+0100'
+	 * });
+	 *
+	 * console.log(store.availability());
+	 */
 	public availability(): string {
-		let availability = this.options.language.closed;
+		let availability = this._options.language.closed;
 
 		if (this.opened() === true) {
-			availability = this.options.language.opened;
+			availability = this._options.language.opened;
 		}
 
 		return availability;
 	}
 
+	/**
+	 * @description Returns the number of seconds before the store will close.
+	 * @since 0.1.0
+	 * @kind member
+	 * @memberof OpenedClosed
+	 * @return {Integer}
+	 * @example
+	 * const store = new OpenedClosed({
+	 *   timezone: 'GMT+0100'
+	 * });
+	 *
+	 * if(store.opened()) {
+	 *   console.log(store.closeIn());
+	 * }
+	 */
 	public closeIn(): number {
 		let closesIn: Array<number> = [];
 
 		const now = this._now();
 
-		for (const day in this.options.openings) {
-			const openings = this.options.openings[day];
+		for (const day in this._options.openings) {
+			const openings = this._options.openings[day];
 
 			for (const opening of openings) {
 				const start = this._getDateFromString(opening.start);
@@ -172,9 +270,14 @@ class OpenedClosed {
 	private _currentDate(options): string {
 		return `${options.year}-${options.month}-${options.day} ${
 			options.time
-		} ${this.options.timezone}`;
+		} ${this._options.timezone}`;
 	}
 
+	/**
+	 *
+	 * @throws {Error} If the time is not a string.
+	 * @throws {Error} If the time not a correct time.
+	 */
 	private _getDateFromString(dateString: string): Date {
 		if (!this._isString(dateString)) {
 			throw new Error(OpenedClosed.ERR_TIME_SHOULD_BE_STRING);
@@ -244,8 +347,8 @@ class OpenedClosed {
 	}
 
 	private _autoFillLanguage(): void {
-		if ("language" in this.options === false) {
-			this.options.language = {
+		if ("language" in this._options === false) {
+			this._options.language = {
 				opened: "opened",
 				closed: "closed"
 			};
@@ -253,17 +356,18 @@ class OpenedClosed {
 			return;
 		}
 
-		const language = this.options.language;
+		const language = this._options.language;
 
 		if (!this._isObject(language)) {
 			throw new Error(OpenedClosed.ERR_OPTIONS_LANGUAGE_NOT_OBJECT);
 		}
 
-		if ("opened" in this.options.language === false) {
-			this.options.language.opened = OpenedClosed.DEFAULT_LANGUAGE_OPENED;
+		if ("opened" in this._options.language === false) {
+			this._options.language.opened =
+				OpenedClosed.DEFAULT_LANGUAGE_OPENED;
 		}
 
-		const opened = this.options.language.opened;
+		const opened = this._options.language.opened;
 
 		if (!this._isString(opened)) {
 			throw new Error(
@@ -275,11 +379,12 @@ class OpenedClosed {
 			throw new Error(OpenedClosed.ERR_OPTIONS_LANGUAGE_OPENED_EMPTY);
 		}
 
-		if ("closed" in this.options.language === false) {
-			this.options.language.closed = OpenedClosed.DEFAULT_LANGUAGE_CLOSED;
+		if ("closed" in this._options.language === false) {
+			this._options.language.closed =
+				OpenedClosed.DEFAULT_LANGUAGE_CLOSED;
 		}
 
-		const closed = this.options.language.closed;
+		const closed = this._options.language.closed;
 
 		if (!this._isString(closed)) {
 			throw new Error(
@@ -322,7 +427,7 @@ class OpenedClosed {
 	private _nowIsClosed(): boolean {
 		let nowIsClosed = this._hasOpenings() ? false : true;
 
-		const closings = this.options.closings;
+		const closings = this._options.closings;
 		const now = this._now();
 
 		if (this._isArray(closings)) {
@@ -340,7 +445,7 @@ class OpenedClosed {
 
 	private _throwErrorIfClosingDateIncorrect() {
 		const closings =
-			"closings" in this.options ? this.options.closings : undefined;
+			"closings" in this._options ? this._options.closings : undefined;
 
 		if (this._isArray(closings)) {
 			for (const closing of closings) {
@@ -373,7 +478,7 @@ class OpenedClosed {
 	}
 
 	private _throwErrorIfOpeningDateIncorrect(): void {
-		const openings = this.options.openings;
+		const openings = this._options.openings;
 
 		if (this._isObject(openings)) {
 			for (const key in openings) {
@@ -451,8 +556,8 @@ class OpenedClosed {
 
 	private _hasOpenings(): boolean {
 		return (
-			"openings" in this.options &&
-			Object.keys(this.options.openings).length > 0
+			"openings" in this._options &&
+			Object.keys(this._options.openings).length > 0
 		);
 	}
 }
