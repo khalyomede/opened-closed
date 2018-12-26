@@ -6,6 +6,20 @@
 	"repository": "https://github.com/khalyomede/opened-closed",
 	"author": "Khalyomede <khalyomede@gmail.com>",
 	"license": "MIT",
+	"keywords": [
+		"opened",
+		"closed",
+		"closing",
+		"hours",
+		"opening-hours",
+		"javascript",
+		"nodejs",
+		"npm",
+		"npm-package",
+		"availability",
+		"close-in",
+		"opens-in"
+	],
 	"devDependencies": {
 		"@babel/core": "^7.2.2",
 		"@types/node": "10.*",
