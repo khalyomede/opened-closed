@@ -49,16 +49,14 @@ class OpenedClosed {
 	private static ERR_MISSING_TO_KEY = 'key "to" is missing';
 	private static ERR_KEY_FROM_NOT_DATE = 'key "from" should be a Date';
 	private static ERR_KEY_TO_NOT_DATE = 'key "to" should be a Date';
-	private static ERR_CLOSING_DATE_CONTAINS_UNSAFE_DATES =
-		'keys "from" and "to" have the same date, which is unsafe (if you set the same date for those dates, please precise a different time for both)';
 	private static ERR_CLOSINGS_DATE_NOT_OBJECT =
 		"each closing dates should be an object";
+	private static ERR_MALFORMED_OPENINGS = "malformed openings data";
+	private static ERR_MALFORMED_CLOSINGS = "malformed closings data";
 	private static ERR_TIME_NOT_CORRECT = "the time is not valid";
 	private static ERR_TIME_SHOULD_BE_STRING = "the time should be a string";
 	private static ERR_INTERNAL_NOT_DATE = "internal error: invalid date";
 	private static ERR_INTERNAL_NOT_ARRAY = "internal error: invalid array";
-	private static ERR_INTERNAL_REVERTED_DATES =
-		"internal error: reverted dates";
 	private static DEFAULT_LANGUAGE_CLOSED = "closed";
 	private static DEFAULT_LANGUAGE_OPENED = "opened";
 
@@ -79,6 +77,7 @@ class OpenedClosed {
 		this.now = new Date();
 
 		this._throwErrorIfClosingDateIncorrect();
+		this._throwErrorIfOpeningDateIncorrect();
 		this._autoFillLanguage();
 	}
 
@@ -90,17 +89,19 @@ class OpenedClosed {
 		for (const day in this.options.openings) {
 			const openings = this.options.openings[day];
 
-			if (this._nowIsTheDay(day)) {
-				for (const opening of openings) {
-					const start = this._getDateFromString(opening.start, day);
-					const end = this._getDateFromString(opening.end, day);
-					const nowIsClosed = this._nowIsClosed();
+			for (const opening of openings) {
+				const start = this._getDateFromString(opening.start);
+				const end = this._getDateFromString(opening.end);
+				const nowIsClosed = this._nowIsClosed();
 
-					if (this._dateBetween(now, start, end) && !nowIsClosed) {
-						opened = true;
+				if (
+					this._nowIsTheDay(day) &&
+					this._dateBetween(now, start, end) &&
+					!nowIsClosed
+				) {
+					opened = true;
 
-						break;
-					}
+					break;
 				}
 			}
 		}
@@ -126,18 +127,19 @@ class OpenedClosed {
 		for (const day in this.options.openings) {
 			const openings = this.options.openings[day];
 
-			if (this._nowIsTheDay(day)) {
-				for (const opening of openings) {
-					const start = this._getDateFromString(opening.start, day);
-					const end = this._getDateFromString(opening.end, day);
+			for (const opening of openings) {
+				const start = this._getDateFromString(opening.start);
+				const end = this._getDateFromString(opening.end);
 
-					if (this._dateBetween(now, start, end)) {
-						const closeIn = this._datesDifferenceToEpoch(now, end);
+				if (
+					this._nowIsTheDay(day) &&
+					this._dateBetween(now, start, end)
+				) {
+					const closeIn = this._datesDifferenceToEpoch(now, end);
 
-						closesIn.push(closeIn);
+					closesIn.push(closeIn);
 
-						break;
-					}
+					break;
 				}
 			}
 		}
@@ -173,7 +175,7 @@ class OpenedClosed {
 		} ${this.options.timezone}`;
 	}
 
-	private _getDateFromString(dateString: string, dayString: string): Date {
+	private _getDateFromString(dateString: string): Date {
 		if (!this._isString(dateString)) {
 			throw new Error(OpenedClosed.ERR_TIME_SHOULD_BE_STRING);
 		}
@@ -247,6 +249,8 @@ class OpenedClosed {
 				opened: "opened",
 				closed: "closed"
 			};
+
+			return;
 		}
 
 		const language = this.options.language;
@@ -362,13 +366,38 @@ class OpenedClosed {
 				if (!this._isDate(to)) {
 					throw new Error(OpenedClosed.ERR_KEY_TO_NOT_DATE);
 				}
+			}
+		} else if (closings !== null && closings !== undefined) {
+			throw new Error(OpenedClosed.ERR_MALFORMED_CLOSINGS);
+		}
+	}
 
-				if (from.toISOString() === to.toISOString()) {
-					throw new Error(
-						OpenedClosed.ERR_CLOSING_DATE_CONTAINS_UNSAFE_DATES
-					);
+	private _throwErrorIfOpeningDateIncorrect(): void {
+		const openings = this.options.openings;
+
+		if (this._isObject(openings)) {
+			for (const key in openings) {
+				const timeSpans: Array<TimeSpan> = openings[key];
+
+				if (!this._isArray(timeSpans)) {
+					throw new Error(OpenedClosed.ERR_MALFORMED_OPENINGS);
+				}
+
+				for (const timeSpan of timeSpans) {
+					if (!this._isObject(timeSpan)) {
+						throw new Error(OpenedClosed.ERR_MALFORMED_OPENINGS);
+					}
+
+					if (!("start" in timeSpan && "end" in timeSpan)) {
+						throw new Error(OpenedClosed.ERR_MALFORMED_OPENINGS);
+					}
+
+					this._getDateFromString(timeSpan.start);
+					this._getDateFromString(timeSpan.end);
 				}
 			}
+		} else if (openings !== null && openings !== undefined) {
+			throw new Error(OpenedClosed.ERR_MALFORMED_OPENINGS);
 		}
 	}
 
@@ -377,18 +406,6 @@ class OpenedClosed {
 		lowerDate: Date,
 		greaterDate: Date
 	): boolean {
-		const items = [date, lowerDate, greaterDate];
-
-		for (const item of items) {
-			if (!this._isDate(item)) {
-				throw new Error(OpenedClosed.ERR_INTERNAL_NOT_DATE);
-			}
-		}
-
-		if (lowerDate !== greaterDate && lowerDate > greaterDate) {
-			throw new Error(OpenedClosed.ERR_INTERNAL_REVERTED_DATES);
-		}
-
 		return lowerDate <= date && date <= greaterDate;
 	}
 
