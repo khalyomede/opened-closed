@@ -247,6 +247,47 @@ class OpenedClosed {
 		return closeIn;
 	}
 
+	/**
+	 * @description Returns a Date when the store is about to close. Note that if the store is already closed, this will return now as a Date.
+	 * @return {Date}
+	 * @since 0.1.0
+	 * @kind member
+	 * @memberof OpenedClosed
+	 * @example
+	 * const store = new OpenedClosed({
+	 *   timezone: 'GMT+0100'
+	 * });
+	 *
+	 * if(store.opened()) {
+	 *   console.log(store.closeAt());
+	 * }
+	 */
+	public closeAt(): Date {
+		let closeAt: Date = new Date();
+
+		const now = this._now();
+
+		for (const day in this._options.openings) {
+			const openings = this._options.openings[day];
+
+			for (const opening of openings) {
+				const start = this._getDateFromString(opening.start);
+				const end = this._getDateFromString(opening.end);
+
+				if (
+					this._nowIsTheDay(day) &&
+					this._dateBetween(now, start, end)
+				) {
+					closeAt = end;
+
+					break;
+				}
+			}
+		}
+
+		return closeAt;
+	}
+
 	private _currentYear(): number {
 		return this.now.getFullYear();
 	}

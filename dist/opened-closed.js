@@ -1,10 +1,67 @@
 "use strict";
 
+/**
+ * @description Provides store availabiltiy, near-to-close information and more.
+ * @kind class
+ * @license MIT
+ * @since 0.1.0
+ * @param {Object} options The settings.
+ * @param {String} options.timezone The timezone (in any format that Date supports).
+ * @param {Object} options.openings The openings hours.
+ * @param {Array} options.closings The closings hours.
+ * @return {OpenedClosed}
+ * @example
+ * const store = new OpenedClosed({
+ *   timezone: 'GMT+0100',
+ *   openings: {
+ *     monday: [
+ *       { start: '10:00', end: '13:00' },
+ *       { start: '15:00', end: '18:00' }
+ *     ],
+ *     wednesday: [
+ *       { start: '08:00:00', end: '16:59:59' }
+ *     ]
+ *   }
+ * });
+ * @example
+ * const store = new OpenedClosed({
+ *   timezone: 'GMT+0100',
+ *   openings: {
+ *     monday: [
+ *       { start: '10:00', end: '18:00' }
+ *     ]
+ *   },
+ *   closings: [
+ *     {
+ *       reason: 'Christmas',
+ *       from: new Date('2018-12-25 00:00:00 GMT+0100'),
+ *       to: new Date('2018-12-25 23:59:00 GMT+0100')
+ *     },
+ *     {
+ *       from: new Date('2018-12-31 00:00:00 GMT+0100'),
+ *       to: new Date('2019-01-01 23:59:00 GMT+0100')
+ *     }
+ *   ]
+ * });
+ * @example
+ * const store = new OpenedClosed({
+ *   timezone: 'GMT+0100',
+ *   openings: {
+ *     monday: [
+ *       { start: '10:00', end: '18:00' }
+ *     ]
+ *   },
+ *   language: {
+ *     opened: 'ouvert',
+ *     closed: 'fermé'
+ *   }
+ * });
+ */
 var OpenedClosed =
 /** @class */
 function () {
   function OpenedClosed(options) {
-    if (options === undefined || options === null || options.constructor !== Object) {
+    if (!this._isObject(options)) {
       throw new Error(OpenedClosed.ERR_OPTIONS_NOT_OBJECT);
     }
 
@@ -16,71 +73,117 @@ function () {
       throw new Error(OpenedClosed.ERR_OPTIONS_MISSING_TIMEZONE);
     }
 
-    this.options = options;
+    this._options = options;
     this.now = new Date();
+
+    this._throwErrorIfClosingDateIncorrect();
+
+    this._throwErrorIfOpeningDateIncorrect();
 
     this._autoFillLanguage();
   }
+  /**
+   * @description Returns true if the store is opened right now, else returns false.
+   * @kind member
+   * @memberof OpenedClosed
+   * @return {Boolean}
+   * @since 0.1.0
+   * @example
+   * const store = new OpenedClosed({
+   *   'timezone': 'GMT+0100'
+   * });
+   *
+   * store.opened();
+   */
+
 
   OpenedClosed.prototype.opened = function () {
     var opened = false;
 
     var now = this._now();
 
-    for (var day in this.options.openings) {
-      var openings = this.options.openings[day];
+    for (var day in this._options.openings) {
+      var openings = this._options.openings[day];
 
-      if (this._nowIsTheDay(day) === true) {
-        for (var _i = 0, openings_1 = openings; _i < openings_1.length; _i++) {
-          var opening = openings_1[_i];
+      for (var _i = 0, openings_1 = openings; _i < openings_1.length; _i++) {
+        var opening = openings_1[_i];
 
-          var start = this._getDateFromString(opening.start, day);
+        var start = this._getDateFromString(opening.start);
 
-          var end = this._getDateFromString(opening.end, day);
+        var end = this._getDateFromString(opening.end);
 
-          if (start <= now && now <= end) {
-            opened = true;
-            break;
-          }
+        var nowIsClosed = this._nowIsClosed();
+
+        if (this._nowIsTheDay(day) && this._dateBetween(now, start, end) && !nowIsClosed) {
+          opened = true;
+          break;
         }
       }
     }
 
     return opened;
   };
+  /**
+   * @description Returns "opened" or "closed" (or the equivalent set in the language options) depending the store is opened right now or not.
+   * @return {String}
+   * @kind member
+   * @memberof OpenedClosed
+   * @since 0.1.0
+   * @example
+   * const store = new OpenedClosed({
+   *   timezone: 'GMT+0100'
+   * });
+   *
+   * console.log(store.availability());
+   */
+
 
   OpenedClosed.prototype.availability = function () {
-    var availability = this.options.language.closed;
+    var availability = this._options.language.closed;
 
     if (this.opened() === true) {
-      availability = this.options.language.opened;
+      availability = this._options.language.opened;
     }
 
     return availability;
   };
+  /**
+   * @description Returns the number of seconds before the store will close.
+   * @since 0.1.0
+   * @kind member
+   * @memberof OpenedClosed
+   * @return {Integer}
+   * @example
+   * const store = new OpenedClosed({
+   *   timezone: 'GMT+0100'
+   * });
+   *
+   * if(store.opened()) {
+   *   console.log(store.closeIn());
+   * }
+   */
+
 
   OpenedClosed.prototype.closeIn = function () {
     var closesIn = [];
 
     var now = this._now();
 
-    for (var day in this.options.openings) {
-      var openings = this.options.openings[day];
+    for (var day in this._options.openings) {
+      var openings = this._options.openings[day];
 
-      if (this._nowIsTheDay(day) === true) {
-        for (var _i = 0, openings_2 = openings; _i < openings_2.length; _i++) {
-          var opening = openings_2[_i];
+      for (var _i = 0, openings_2 = openings; _i < openings_2.length; _i++) {
+        var opening = openings_2[_i];
 
-          var start = this._getDateFromString(opening.start, day);
+        var start = this._getDateFromString(opening.start);
 
-          var end = this._getDateFromString(opening.end, day);
+        var end = this._getDateFromString(opening.end);
 
-          if (start <= now && now <= end) {
-            var closeIn_1 = this._datesDifferenceToEpoch(now, end);
+        if (this._nowIsTheDay(day) && this._dateBetween(now, start, end)) {
+          var closeIn_1 = this._datesDifferenceToEpoch(now, end);
 
-            closesIn.push(closeIn_1);
-            break;
-          }
+          closesIn.push(closeIn_1);
+          break;
         }
       }
     }
@@ -88,6 +191,47 @@ function () {
     var closeIn = this._max(closesIn);
 
     return closeIn;
+  };
+  /**
+   * @description Returns a Date when the store is about to close. Note that if the store is already closed, this will return now as a Date.
+   * @return {Date}
+   * @since 0.1.0
+   * @kind member
+   * @memberof OpenedClosed
+   * @example
+   * const store = new OpenedClosed({
+   *   timezone: 'GMT+0100'
+   * });
+   *
+   * if(!store.opened()) {
+   *   console.log(store.closeAt());
+   * }
+   */
+
+
+  OpenedClosed.prototype.closeAt = function () {
+    var closeAt = new Date();
+
+    var now = this._now();
+
+    for (var day in this._options.openings) {
+      var openings = this._options.openings[day];
+
+      for (var _i = 0, openings_3 = openings; _i < openings_3.length; _i++) {
+        var opening = openings_3[_i];
+
+        var start = this._getDateFromString(opening.start);
+
+        var end = this._getDateFromString(opening.end);
+
+        if (this._nowIsTheDay(day) && this._dateBetween(now, start, end)) {
+          closeAt = end;
+          break;
+        }
+      }
+    }
+
+    return closeAt;
   };
 
   OpenedClosed.prototype._currentYear = function () {
@@ -111,10 +255,24 @@ function () {
   };
 
   OpenedClosed.prototype._currentDate = function (options) {
-    return options.year + "-" + options.month + "-" + options.day + " " + options.time + " " + this.options.timezone;
+    return options.year + "-" + options.month + "-" + options.day + " " + options.time + " " + this._options.timezone;
   };
+  /**
+   *
+   * @throws {Error} If the time is not a string.
+   * @throws {Error} If the time not a correct time.
+   */
 
-  OpenedClosed.prototype._getDateFromString = function (dateString, dayString) {
+
+  OpenedClosed.prototype._getDateFromString = function (dateString) {
+    if (!this._isString(dateString)) {
+      throw new Error(OpenedClosed.ERR_TIME_SHOULD_BE_STRING);
+    }
+
+    if (dateString.length === 0) {
+      throw new Error(OpenedClosed.ERR_TIME_NOT_CORRECT);
+    }
+
     var year = this._currentYear();
 
     var month = this._currentMonth();
@@ -127,6 +285,12 @@ function () {
       day: day,
       time: dateString
     });
+
+    var result = new Date(date);
+
+    if (isNaN(result.getTime())) {
+      throw new Error(OpenedClosed.ERR_TIME_NOT_CORRECT);
+    }
 
     return new Date(date);
   };
@@ -179,26 +343,27 @@ function () {
   };
 
   OpenedClosed.prototype._autoFillLanguage = function () {
-    if ("language" in this.options === false) {
-      this.options.language = {
+    if ("language" in this._options === false) {
+      this._options.language = {
         opened: "opened",
         closed: "closed"
       };
+      return;
     }
 
-    var language = this.options.language;
+    var language = this._options.language;
 
-    if (language === null || language === undefined || language.constructor !== Object) {
+    if (!this._isObject(language)) {
       throw new Error(OpenedClosed.ERR_OPTIONS_LANGUAGE_NOT_OBJECT);
     }
 
-    if ("opened" in this.options.language === false) {
-      this.options.language.opened = OpenedClosed.DEFAULT_LANGUAGE_OPENED;
+    if ("opened" in this._options.language === false) {
+      this._options.language.opened = OpenedClosed.DEFAULT_LANGUAGE_OPENED;
     }
 
-    var opened = this.options.language.opened;
+    var opened = this._options.language.opened;
 
-    if (opened === null || opened === undefined || opened.constructor !== String) {
+    if (!this._isString(opened)) {
       throw new Error(OpenedClosed.ERR_OPTIONS_LANGUAGE_OPENED_NOT_STRING);
     }
 
@@ -206,13 +371,13 @@ function () {
       throw new Error(OpenedClosed.ERR_OPTIONS_LANGUAGE_OPENED_EMPTY);
     }
 
-    if ("closed" in this.options.language === false) {
-      this.options.language.closed = OpenedClosed.DEFAULT_LANGUAGE_CLOSED;
+    if ("closed" in this._options.language === false) {
+      this._options.language.closed = OpenedClosed.DEFAULT_LANGUAGE_CLOSED;
     }
 
-    var closed = this.options.language.closed;
+    var closed = this._options.language.closed;
 
-    if (closed === null || closed === undefined || closed.constructor !== String) {
+    if (!this._isString(closed)) {
       throw new Error(OpenedClosed.ERR_OPTIONS_LANGUAGE_CLOSED_NOT_STRING);
     }
 
@@ -222,7 +387,7 @@ function () {
   };
 
   OpenedClosed.prototype._dateToEpoch = function (date) {
-    if (date === null || date === undefined || date.constructor !== Date) {
+    if (!this._isDate(date)) {
       throw new Error(OpenedClosed.ERR_INTERNAL_NOT_DATE);
     }
 
@@ -240,11 +405,130 @@ function () {
   };
 
   OpenedClosed.prototype._max = function (numbers) {
-    if (numbers === null || numbers === undefined || numbers.constructor !== Array) {
+    if (!this._isArray(numbers)) {
       throw new Error(OpenedClosed.ERR_INTERNAL_NOT_ARRAY);
     }
 
     return numbers.length === 0 ? 0 : Math.max.apply(Math, numbers);
+  };
+
+  OpenedClosed.prototype._nowIsClosed = function () {
+    var nowIsClosed = this._hasOpenings() ? false : true;
+    var closings = this._options.closings;
+
+    var now = this._now();
+
+    if (this._isArray(closings)) {
+      for (var _i = 0, closings_1 = closings; _i < closings_1.length; _i++) {
+        var closing = closings_1[_i];
+
+        if (this._dateBetween(now, closing.from, closing.to)) {
+          nowIsClosed = true;
+          break;
+        }
+      }
+    }
+
+    return nowIsClosed;
+  };
+
+  OpenedClosed.prototype._throwErrorIfClosingDateIncorrect = function () {
+    var closings = "closings" in this._options ? this._options.closings : undefined;
+
+    if (this._isArray(closings)) {
+      for (var _i = 0, closings_2 = closings; _i < closings_2.length; _i++) {
+        var closing = closings_2[_i];
+
+        if (!this._isObject(closing)) {
+          throw new Error(OpenedClosed.ERR_CLOSINGS_DATE_NOT_OBJECT);
+        }
+
+        if ("from" in closing === false) {
+          throw new Error(OpenedClosed.ERR_MISSING_FROM_KEY);
+        }
+
+        if ("to" in closing === false) {
+          throw new Error(OpenedClosed.ERR_MISSING_TO_KEY);
+        }
+
+        var from = closing.from;
+        var to = closing.to;
+
+        if (!this._isDate(from)) {
+          throw new Error(OpenedClosed.ERR_KEY_FROM_NOT_DATE);
+        }
+
+        if (!this._isDate(to)) {
+          throw new Error(OpenedClosed.ERR_KEY_TO_NOT_DATE);
+        }
+      }
+    } else if (closings !== null && closings !== undefined) {
+      throw new Error(OpenedClosed.ERR_MALFORMED_CLOSINGS);
+    }
+  };
+
+  OpenedClosed.prototype._throwErrorIfOpeningDateIncorrect = function () {
+    var openings = this._options.openings;
+
+    if (this._isObject(openings)) {
+      for (var key in openings) {
+        var timeSpans = openings[key];
+
+        if (!this._isArray(timeSpans)) {
+          throw new Error(OpenedClosed.ERR_MALFORMED_OPENINGS);
+        }
+
+        for (var _i = 0, timeSpans_1 = timeSpans; _i < timeSpans_1.length; _i++) {
+          var timeSpan = timeSpans_1[_i];
+
+          if (!this._isObject(timeSpan)) {
+            throw new Error(OpenedClosed.ERR_MALFORMED_OPENINGS);
+          }
+
+          if (!("start" in timeSpan && "end" in timeSpan)) {
+            throw new Error(OpenedClosed.ERR_MALFORMED_OPENINGS);
+          }
+
+          this._getDateFromString(timeSpan.start);
+
+          this._getDateFromString(timeSpan.end);
+        }
+      }
+    } else if (openings !== null && openings !== undefined) {
+      throw new Error(OpenedClosed.ERR_MALFORMED_OPENINGS);
+    }
+  };
+
+  OpenedClosed.prototype._dateBetween = function (date, lowerDate, greaterDate) {
+    return lowerDate <= date && date <= greaterDate;
+  };
+
+  OpenedClosed.prototype._isNull = function (mixed) {
+    return mixed === null;
+  };
+
+  OpenedClosed.prototype._isUndefined = function (mixed) {
+    return mixed === undefined;
+  };
+
+  OpenedClosed.prototype._isDate = function (mixed) {
+    return !this._isNull(mixed) && !this._isUndefined(mixed) && mixed.constructor === Date;
+  };
+
+  OpenedClosed.prototype._isObject = function (mixed) {
+    return !this._isNull(mixed) && !this._isUndefined(mixed) && mixed.constructor === Object;
+  };
+
+  OpenedClosed.prototype._isArray = function (mixed) {
+    return !this._isNull(mixed) && !this._isUndefined(mixed) && mixed.constructor === Array;
+  };
+
+  OpenedClosed.prototype._isString = function (mixed) {
+    return !this._isNull(mixed) && !this._isUndefined(mixed) && mixed.constructor === String;
+  };
+
+  OpenedClosed.prototype._hasOpenings = function () {
+    return "openings" in this._options && Object.keys(this._options.openings).length > 0;
   };
 
   OpenedClosed.ERR_OPTIONS_NOT_OBJECT = "expected parameter 1 to be an object";
@@ -256,6 +540,15 @@ function () {
   OpenedClosed.ERR_OPTIONS_LANGUAGE_CLOSED_NOT_STRING = "closed language is string";
   OpenedClosed.ERR_OPTIONS_LANGUAGE_CLOSED_EMPTY = "closed language is empty";
   OpenedClosed.ERR_UNSUPPORTED_DAY = "unsupported day";
+  OpenedClosed.ERR_MISSING_FROM_KEY = 'key "from" is missing';
+  OpenedClosed.ERR_MISSING_TO_KEY = 'key "to" is missing';
+  OpenedClosed.ERR_KEY_FROM_NOT_DATE = 'key "from" should be a Date';
+  OpenedClosed.ERR_KEY_TO_NOT_DATE = 'key "to" should be a Date';
+  OpenedClosed.ERR_CLOSINGS_DATE_NOT_OBJECT = "each closing dates should be an object";
+  OpenedClosed.ERR_MALFORMED_OPENINGS = "malformed openings data";
+  OpenedClosed.ERR_MALFORMED_CLOSINGS = "malformed closings data";
+  OpenedClosed.ERR_TIME_NOT_CORRECT = "the time is not valid";
+  OpenedClosed.ERR_TIME_SHOULD_BE_STRING = "the time should be a string";
   OpenedClosed.ERR_INTERNAL_NOT_DATE = "internal error: invalid date";
   OpenedClosed.ERR_INTERNAL_NOT_ARRAY = "internal error: invalid array";
   OpenedClosed.DEFAULT_LANGUAGE_CLOSED = "closed";
