@@ -31,6 +31,7 @@ console.log(store.opened());
 - [Installation](#installation)
 - [Usage](#usage)
 - [API](api.md)
+- [Contributing](#contributing)
 
 ## Installation
 
@@ -197,3 +198,21 @@ if (store.opened()) {
   console.log(store.availability()); // "closed"
 }
 ```
+
+## Contributing
+
+- The code is located in `src/main.ts`. This is in TypeScript, but it also support plain JavaScript if you prefer.
+- I prefer no dependencies for the moment, because this is help making a working web solution (opened to suggestions to improve the workflow).
+- The web solution is simply removing the export statement, and using Gulp to transpile TypeScript in ES5 (opened to suggestions to improve the workflow).
+
+1. Create an issue
+2. Create a branche with the number of the issue in it: `git checkout -b issue-36`
+3. Create tests inside `test/`
+4. Light on dev: `npm run dev`
+5. Make your changes on `src/main.ts`
+6. Run test using `npm run test`
+7. Copy `main.ts` in `opened-closed.ts`, remove the `export = OpenedClosed;` line
+8. Run `npm run prod`
+9. Create a Pull Request with your branch
+
+Thank you for your time!
