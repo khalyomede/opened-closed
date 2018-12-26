@@ -4,11 +4,11 @@ Technical documentation for end developpers.
 
 ## Summary
 
-- [Constructor](#OpenedClosed)
 - [OpenedClosed](#OpenedClosed)
 - [OpenedClosed.opened()](#opened)
 - [OpenedClosed.availability()](#availability)
 - [OpenedClosed.closeIn()](#closeIn)
+- [OpenedClosed.closeAt()](#closeAt)
 ### OpenedClosed
 
 Provides store availabiltiy, near-to-close information and more.
@@ -159,6 +159,34 @@ const store = new OpenedClosed({
 
 if(store.opened()) {
   console.log(store.closeIn());
+}
+```
+[back to menu](#summary)
+### closeAt
+
+Returns a Date when the store is about to close. Note that if the store is already closed, this will return now as a Date.
+
+#### Available since version
+
+0.1.0
+
+#### Parameters
+
+None.
+
+#### Returns
+
+Date
+
+#### Examples
+
+```javascript
+const store = new OpenedClosed({
+  timezone: 'GMT+0100'
+});
+
+if(store.opened()) {
+  console.log(store.closeAt());
 }
 ```
 [back to menu](#summary)
