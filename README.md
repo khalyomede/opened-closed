@@ -128,7 +128,7 @@ console.log(store.availability());
 ### Example 4: changing the language
 
 ```javascript
-const OpenedClosed = require("../lib/main");
+const OpenedClosed = require("opened-closed");
 
 const store = new OpenedClosed({
   timezone: "GMT+0100",
@@ -150,7 +150,7 @@ console.log(store.availability());
 ### Example 5: get the "store closes in" in seconds
 
 ```javascript
-const OpenedClosed = require("../lib/main");
+const OpenedClosed = require("opened-closed");
 
 const store = new OpenedClosed({
   timezone: "GMT+0100",
