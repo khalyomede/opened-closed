@@ -213,6 +213,6 @@ if (store.opened()) {
 6. Run test using `npm run test`
 7. Copy `main.ts` in `opened-closed.ts`, remove the `export = OpenedClosed;` line
 8. Run `npm run prod`
-9. Create a Pull Request with your branch
+9. Create a Pull Request from your branch to master
 
 Thank you for your time!
