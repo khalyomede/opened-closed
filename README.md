@@ -168,3 +168,25 @@ if (store.opened()) {
   console.log(store.availability());
 }
 ```
+
+### Example 6: getting the near-to-close information as a date
+
+```javascript
+const OpenedClosed = require("opened-closed");
+
+const store = new OpenedClosed({
+	timezone: "GMT+0100",
+	openings: {
+		wednesday: [{ start: "10:00", end: "19:00" }]
+	}
+});
+
+if (store.opened()) {
+	const closeAt = store.closeAt().toLocaleString(); // Maybe GMT+01 is not yours, so LocalString take care of it.
+
+	console.log("will close at", closeAt);
+} else {
+	console.log(store.availability()); // "closed"
+}
+
+```
