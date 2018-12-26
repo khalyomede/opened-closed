@@ -48,8 +48,4 @@ const watch = function() {
 	return gulp.watch("src/main.ts", gulp.series("lib"));
 };
 
-const prod = async function() {
-	return gulp.parallel("lib", "dist");
-};
-
-module.exports = { lib, dist, watch, prod };
+module.exports = { lib, dist, watch };
