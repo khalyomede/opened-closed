@@ -39,7 +39,7 @@
 	},
 	"scripts": {
 		"dev": "gulp watch",
-		"prod": "gulp prod",
+		"prod": "gulp lib && gulp dist && node script/make-api.js",
 		"test": "nyc mocha test/opened-closed",
 		"mutate": "stryker run --mutate lib/main.js",
 		"coverage": "nyc mocha test/opened-closed && nyc report --reporter=text-lcov | coveralls",
