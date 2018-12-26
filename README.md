@@ -27,6 +27,7 @@ console.log(store.opened());
 
 - [Installation](#installation)
 - [Usage](#usage)
+- [API](api.md)
 
 ## Installation
 
