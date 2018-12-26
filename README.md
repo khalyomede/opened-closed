@@ -70,7 +70,7 @@ All the examples can be found in the folder `example` of this repository.
 ### Example 1: checking if a store is opened now
 
 ```javascript
-const OpenedClosed = require("../lib/main");
+const OpenedClosed = require("opened-closed");
 
 const store = new OpenedClosed({
   timezone: "GMT+0100",
