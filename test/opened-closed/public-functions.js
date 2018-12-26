@@ -140,77 +140,208 @@ describe("public functions", function() {
 			}).to.not.throw(Error);
 		});
 
-		describe("closings", function() {
-			it("should throw an Error if one of the closings dates does not have a from key", function() {
+		describe("openings", function() {
+			it("should not throw an Error if the openings is an empty object", function() {
 				expect(function() {
 					new OpenedClosed({
 						timezone: "GMT+0100",
-						closings: [{ to: new Date() }]
+						openings: {}
 					});
-				}).to.throw('key "from" is missing');
+				}).to.not.throw(Error);
 			});
 
-			it("should throw an Error if one of the closings dates does not have to key", function() {
+			it("should not throw an Error if the openings is not defined", function() {
 				expect(function() {
 					new OpenedClosed({
-						timezone: "GMT+0100",
-						closings: [{ from: new Date() }]
+						timezone: "GMT+0100"
 					});
-				}).to.throw('key "to" is missing');
+				}).to.not.throw(Error);
 			});
 
-			it("should throw an Error if one of the closings dates does not have a Date on the from key", function() {
+			it("should not throw an Erorr if the openings is correctly formed", function() {
 				expect(function() {
 					new OpenedClosed({
 						timezone: "GMT+0100",
-						closings: [
-							{
-								from: "2018-01-01 00:00:00",
-								to: new Date("2018-01-01 23:59:00")
+						openings: {
+							monday: [{ start: "10:00", end: "13:00" }]
+						}
+					});
+				}).to.not.throw(Error);
+			});
+
+			it("should not throw an Error if one of the openings have an empty array on one day", function() {
+				expect(function() {
+					new OpenedClosed({
+						timezone: "GMT+0100",
+						openings: {
+							monday: [],
+							tuesday: [{ start: "10:00", end: "13:00" }]
+						}
+					});
+				}).to.not.throw(Error);
+			});
+
+			const samples = [
+				{ type: "an integer", value: 42 },
+				{ type: "a float", value: 3.14 },
+				{ type: "a function", value: function() {} },
+				{ type: "a class", value: class Test {} },
+				{ type: "a regular expression", value: new RegExp() },
+				{ type: "a string", value: "foo" },
+				{ type: "an empty string", value: "" },
+				{ type: "an array", value: [1, 2, 3] },
+				{ type: "an empty array", value: [] },
+				{ type: "a boolean (true)", value: true },
+				{ type: "a boolean (false)", value: false },
+				{ type: "a date", value: new Date() }
+			];
+
+			for (const sample of samples) {
+				it(`should throw an Error if the openings is ${
+					sample.type
+				} instead of a non empty object`, function() {
+					expect(function() {
+						new OpenedClosed({
+							timezone: "GMT+0100",
+							openings: sample.value
+						});
+					}).to.throw("malformed openings data");
+				});
+			}
+
+			const samples2 = [
+				{ type: "an integer", value: 42 },
+				{ type: "a float", value: 3.14 },
+				{ type: "an object", value: { type: "GET", async: true } },
+				{ type: "a function", value: function() {} },
+				{ type: "a class", value: class Test {} },
+				{ type: "a regular expression", value: new RegExp() },
+				{ type: "a string", value: "foo" },
+				{ type: "an empty string", value: "" },
+				{ type: "a boolean (true)", value: true },
+				{ type: "a boolean (false)", value: false },
+				{ type: "a date", value: new Date() },
+				{ type: "null", value: null },
+				{ type: "undefined", value: undefined }
+			];
+
+			for (const sample of samples2) {
+				it(`should throw an Error if the openings keys are ${
+					sample.type
+				} instead of an Array`, function() {
+					expect(function() {
+						new OpenedClosed({
+							timezone: "GMT+0100",
+							openings: {
+								monday: sample.value
 							}
-						]
-					});
-				}).to.throw('key "from" should be a Date');
-			});
+						});
+					}).to.throw("malformed openings data");
+				});
+			}
 
-			it("should throw an Error if one of the closings dates does not have a Date on the to key", function() {
-				expect(function() {
-					new OpenedClosed({
-						timezone: "GMT+0100",
-						closings: [
-							{
-								from: new Date("2018-01-01 00:00:00"),
-								to: "2018-01-01 23:59:00"
+			for (const sample of samples) {
+				it(`should throw an Error if one of the openings keys is ${
+					sample.type
+				} instead of an Object`, function() {
+					expect(function() {
+						new OpenedClosed({
+							timezone: "GMT+0100",
+							openings: {
+								monday: [sample.value]
 							}
-						]
-					});
-				}).to.throw('key "to" should be a Date');
-			});
+						});
+					}).to.throw("malformed openings data");
+				});
+			}
 
-			it("should throw an Error if one of the closings date contains equal date for from and to dates (which is unsafe)", function() {
+			it("should throw an Error if one of the openings does not have start key", function() {
 				expect(function() {
 					new OpenedClosed({
 						timezone: "GMT+0100",
-						closings: [{ from: new Date(), to: new Date() }]
+						openings: {
+							monday: [{ end: "13:00" }]
+						}
 					});
-				}).to.throw(
-					'keys "from" and "to" have the same date, which is unsafe (if you set the same date for those dates, please precise a different time for both)'
-				);
+				}).to.throw("malformed openings data");
 			});
 
-			it("should throw an Error if one of the closings date is not an object", function() {
+			it("should throw an Error if one of the openings does not have end key", function() {
 				expect(function() {
 					new OpenedClosed({
 						timezone: "GMT+0100",
-						closings: [
-							{
-								from: new Date("2018-01-01"),
-								to: new Date("2018-12-01")
-							},
-							42
-						]
+						openings: {
+							monday: [{ start: "10:00" }]
+						}
 					});
-				}).to.throw("each closing dates should be an object");
+				}).to.throw("malformed openings data");
+			});
+
+			const samples3 = [
+				{ type: "an integer", value: 42 },
+				{ type: "a float", value: 3.14 },
+				{ type: "an array", value: [1, 2, 3] },
+				{ type: "an empty array", value: [] },
+				{ type: "an object", value: { type: "GET", async: true } },
+				{ type: "an empty object", value: {} },
+				{ type: "a function", value: function() {} },
+				{ type: "a class", value: class Test {} },
+				{ type: "a regular expression", value: new RegExp() },
+				{ type: "a boolean (true)", value: true },
+				{ type: "a boolean (false)", value: false },
+				{ type: "a date", value: new Date() },
+				{ type: "null", value: null },
+				{ type: "undefined", value: undefined }
+			];
+
+			for (const sample of samples3) {
+				it(`should throw an Error if one of the openings has a key start ${
+					sample.type
+				} instead of a string`, function() {
+					expect(function() {
+						new OpenedClosed({
+							timezone: "GMT+0100",
+							openings: {
+								monday: [{ start: sample.value, end: "13:00" }]
+							}
+						});
+					}).to.throw("the time should be a string");
+				});
+
+				it(`should throw an Error if one of the openings has a key end ${
+					sample.type
+				} instead of a string`, function() {
+					expect(function() {
+						new OpenedClosed({
+							timezone: "GMT+0100",
+							openings: {
+								monday: [{ start: "11:00", end: sample.value }]
+							}
+						});
+					}).to.throw("the time should be a string");
+				});
+			}
+
+			it("should throw an Error if one of the openings has a key start not a valid time", function() {
+				expect(function() {
+					new OpenedClosed({
+						timezone: "GMT+0100",
+						openings: {
+							monday: [{ start: "foo", end: "13:00" }]
+						}
+					});
+				}).to.throw("the time is not valid");
+			});
+
+			it("should throw an Error if one of the openings has a key end not a valid time", function() {
+				expect(function() {
+					new OpenedClosed({
+						timezone: "GMT+0100",
+						openings: {
+							monday: [{ start: "10:00", end: "foo" }]
+						}
+					});
+				}).to.throw("the time is not valid");
 			});
 		});
 	});

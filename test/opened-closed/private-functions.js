@@ -402,42 +402,6 @@ describe("private functions", function() {
 			expect(instance._dateBetween(date, lowerDate, greaterDate)).to.be
 				.false;
 		});
-
-		it("should throw an Error if the date we test is not a Date", function() {
-			expect(function() {
-				const instance = new OpenedClosed(options);
-
-				instance._dateBetween("", new Date(), new Date());
-			}).to.throw("internal error: invalid date");
-		});
-
-		it("should throw an Error if the start date is not a Date", function() {
-			expect(function() {
-				const instance = new OpenedClosed(options);
-
-				instance._dateBetween(new Date(), "", new Date());
-			}).to.throw("internal error: invalid date");
-		});
-
-		it("should throw an Error if the end date is not a Date", function() {
-			expect(function() {
-				const instance = new OpenedClosed(options);
-
-				instance._dateBetween(new Date(), new Date(), "");
-			}).to.throw("internal error: invalid date");
-		});
-
-		it("should throw an Error if the start date is greater than the end date", function() {
-			expect(function() {
-				const instance = new OpenedClosed(options);
-
-				instance._dateBetween(
-					new Date(),
-					new Date("2018-01-01"),
-					new Date("2017-01-01")
-				);
-			}).to.throw("internal error: reverted dates");
-		});
 	});
 
 	describe("this._nowIsClosed", function() {
@@ -714,5 +678,238 @@ describe("private functions", function() {
 				}).to.throw("the time is not valid");
 			});
 		}
+	});
+
+	describe("this._autoFillLanguage", function() {
+		it("should auto fill with english language if language is empty", function() {
+			const instance = new OpenedClosed(options);
+			const expected = {
+				opened: "opened",
+				closed: "closed"
+			};
+			const actual = instance.options.language;
+
+			expect(actual).to.be.deep.equal(expected);
+		});
+	});
+
+	describe("this._dayNow", function() {
+		it("should return a number", function() {
+			const instance = new OpenedClosed(options);
+
+			expect(instance._dayNow()).to.be.a("number");
+		});
+
+		const days = [
+			{ day: "monday", date: new Date("2018-12-24"), expected: 1 },
+			{ day: "tuesday", date: new Date("2018-12-25"), expected: 2 },
+			{ day: "wednesday", date: new Date("2018-12-26"), expected: 3 },
+			{ day: "thursday", date: new Date("2018-12-27"), expected: 4 },
+			{ day: "friday", date: new Date("2018-12-28"), expected: 5 },
+			{ day: "saturday", date: new Date("2018-12-29"), expected: 6 },
+			{ day: "sunday", date: new Date("2018-12-30"), expected: 0 }
+		];
+
+		for (const day of days) {
+			it(`should return ${day.expected} if we are today ${
+				day.day
+			}`, function() {
+				const instance = new OpenedClosed(options);
+				const now = day.date;
+
+				instance.now = now;
+
+				expect(instance._dayNow()).to.be.equal(day.expected);
+			});
+		}
+	});
+
+	describe("this._throwErrorIfOpeningDateIncorrect", function() {
+		const samples = [
+			{ type: "an empty object", value: {} },
+			{ type: "null", value: null },
+			{ type: "undefined", value: undefined }
+		];
+
+		for (const sample of samples) {
+			it(`should not throw an Error if openings dates is ${
+				sample.type
+			}`, function() {
+				expect(function() {
+					new OpenedClosed({
+						timezone: "GMT+0100",
+						openings: sample.value
+					});
+				}).to.not.throw(Error);
+			});
+		}
+
+		it("should not throw an Error if openings dates is not set", function() {
+			expect(function() {
+				new OpenedClosed(options);
+			}).to.not.throw(Error);
+		});
+
+		const samples2 = [
+			{ type: "an integer", value: 42 },
+			{ type: "a float", value: 3.14 },
+			{ type: "a string", value: "foo" },
+			{ type: "an empty string", value: "" },
+			{ type: "an array", value: [1, 2, 3] },
+			{ type: "an empty array", value: [] },
+			{ type: "a boolean (false)", value: false },
+			{ type: "a boolean (true)", value: true }
+		];
+
+		for (const sample of samples2) {
+			it(`should not throw an Error if openings is ${
+				sample.type
+			} instead of an object`, function() {
+				expect(function() {
+					new OpenedClosed({
+						timezone: "GMT+0100",
+						openings: sample.value
+					});
+				}).to.throw("malformed openings data");
+			});
+		}
+	});
+
+	describe("this._throwErrorIfClosingDateIncorrect", function() {
+		const samples = [
+			{ type: "null", value: null },
+			{ type: "undefined", value: undefined },
+			{ type: "an empty array", value: [] }
+		];
+
+		for (const sample of samples) {
+			it(`should not throw an Error if the closings attribute is ${
+				sample.type
+			}`, function() {
+				expect(function() {
+					new OpenedClosed({
+						timezone: "GMT+0100",
+						closings: sample.value
+					});
+				}).to.not.throw(Error);
+			});
+		}
+
+		it("should not throw an Error if the closings attribute is not set", function() {
+			expect(function() {
+				new OpenedClosed(options);
+			}).to.not.throw(Error);
+		});
+
+		const samples2 = [
+			{ type: "an integer", value: 42 },
+			{ type: "a float", value: 3.14 },
+			{ type: "an object", value: { type: "GET", async: true } },
+			{ type: "an empty object", value: {} },
+			{ type: "a string", value: "foo" },
+			{ type: "an empty string", value: "" },
+			{ type: "a boolean (false)", value: false },
+			{ type: "a boolean (true)", value: true },
+			{ type: "a date", value: new Date() }
+		];
+
+		for (const sample of samples2) {
+			it(`should throw an Error if the closings attribute is a ${
+				sample.type
+			} instead of an array`, function() {
+				expect(function() {
+					new OpenedClosed({
+						timezone: "GMT+0100",
+						closings: sample.value
+					});
+				}).to.throw("malformed closings data");
+			});
+		}
+
+		const samples3 = [
+			{ type: "an integer", value: 42 },
+			{ type: "a float", value: 3.14 },
+			{ type: "an array", value: [1, 2, 3] },
+			{ type: "an empty array", value: [] },
+			{ type: "a string", value: "foo" },
+			{ type: "an empty string", value: "" },
+			{ type: "a boolean (false)", value: false },
+			{ type: "a boolean (true)", value: true },
+			{ type: "a date", value: new Date() }
+		];
+
+		for (const sample of samples3) {
+			it(`should throw an Error if the closings contain ${
+				sample.type
+			} instead of an object`, function() {
+				expect(function() {
+					new OpenedClosed({
+						timezone: "GMT+0100",
+						closings: [sample.value]
+					});
+				}).to.throw("each closing dates should be an object");
+			});
+		}
+
+		it("should throw an Error if one of the closings dates does not have a from key", function() {
+			expect(function() {
+				new OpenedClosed({
+					timezone: "GMT+0100",
+					closings: [{ to: new Date() }]
+				});
+			}).to.throw('key "from" is missing');
+		});
+
+		it("should throw an Error if one of the closings dates does not have to key", function() {
+			expect(function() {
+				new OpenedClosed({
+					timezone: "GMT+0100",
+					closings: [{ from: new Date() }]
+				});
+			}).to.throw('key "to" is missing');
+		});
+
+		it("should throw an Error if one of the closings dates does not have a Date on the from key", function() {
+			expect(function() {
+				new OpenedClosed({
+					timezone: "GMT+0100",
+					closings: [
+						{
+							from: "2018-01-01 00:00:00",
+							to: new Date("2018-01-01 23:59:00")
+						}
+					]
+				});
+			}).to.throw('key "from" should be a Date');
+		});
+
+		it("should throw an Error if one of the closings dates does not have a Date on the to key", function() {
+			expect(function() {
+				new OpenedClosed({
+					timezone: "GMT+0100",
+					closings: [
+						{
+							from: new Date("2018-01-01 00:00:00"),
+							to: "2018-01-01 23:59:00"
+						}
+					]
+				});
+			}).to.throw('key "to" should be a Date');
+		});
+
+		it("should throw an Error if one of the closings date is not an object", function() {
+			expect(function() {
+				new OpenedClosed({
+					timezone: "GMT+0100",
+					closings: [
+						{
+							from: new Date("2018-01-01"),
+							to: new Date("2018-12-01")
+						},
+						42
+					]
+				});
+			}).to.throw("each closing dates should be an object");
+		});
 	});
 });
