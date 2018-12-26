@@ -61,6 +61,11 @@ const OpenedClosed = require('opened-closed');
 All the examples can be found in the folder `example` of this repository.
 
 - [Example 1: checking if a store is opened now](#example-1-checking-if-a-store-is-opened-now)
+- [Example 2: adding exceptional closings dates](#example-2-adding-exceptional-closings-dates)
+- [Example 3: getting the opening state as a string](#example-3-getting-the-opening-state-as-a-string)
+- [Example 4: changing the language](#example-4-changing-the-language)
+- [Example 5: get the "store closes in" in seconds](#example-5-get-the-store-closes-in-in-seconds)
+- [Example 6: get the "store closes in" as a date](#example-6-get-the-store-closes-in-as-a-date)
 
 ### Example 1: checking if a store is opened now
 
@@ -147,7 +152,7 @@ const store = new OpenedClosed({
 console.log(store.availability());
 ```
 
-### Example 5: get the "store closes in" in seconds
+### Example 5: get the store closes in in seconds
 
 ```javascript
 const OpenedClosed = require("opened-closed");
@@ -169,7 +174,7 @@ if (store.opened()) {
 }
 ```
 
-### Example 6: getting the near-to-close information as a date
+### Example 6: get the store closes in as a date
 
 ```javascript
 const OpenedClosed = require("opened-closed");
