@@ -39,7 +39,7 @@ console.log(store.opened());
 Include the following script in your project:
 
 ```html
-<script type="text/javascript" src="https://github.com/khalyomede/opened-closed/blob/master/dist/opened-closed.min.js"></script>
+<script type="text/javascript" src="https://rawcdn.githack.com/khalyomede/opened-closed/61c32d85ad2e9d1f3b01da47cbce53269b83815b/dist/opened-closed.min.js"></script>
 ```
 
 ### NPM
