@@ -27,11 +27,11 @@ describe("private functions", function() {
 		}
 	};
 
-	describe("this.options.language", function() {
+	describe("this._options.language", function() {
 		it("should fill language in english if there is no language", function() {
 			const instance = new OpenedClosed(options);
 
-			expect(instance.options.language).to.be.deep.equal({
+			expect(instance._options.language).to.be.deep.equal({
 				opened: "opened",
 				closed: "closed"
 			});
@@ -48,7 +48,7 @@ describe("private functions", function() {
 				}
 			});
 
-			expect(instance.options.language).to.be.deep.equal({
+			expect(instance._options.language).to.be.deep.equal({
 				opened: "ouvert",
 				closed: "closed"
 			});
@@ -65,7 +65,7 @@ describe("private functions", function() {
 				}
 			});
 
-			expect(instance.options.language).to.be.deep.equal({
+			expect(instance._options.language).to.be.deep.equal({
 				opened: "opened",
 				closed: "fermé"
 			});
@@ -83,7 +83,7 @@ describe("private functions", function() {
 				}
 			});
 
-			expect(instance.options.language).to.be.deep.equal({
+			expect(instance._options.language).to.be.deep.equal({
 				opened: "ouvert",
 				closed: "fermé"
 			});
@@ -687,7 +687,7 @@ describe("private functions", function() {
 				opened: "opened",
 				closed: "closed"
 			};
-			const actual = instance.options.language;
+			const actual = instance._options.language;
 
 			expect(actual).to.be.deep.equal(expected);
 		});
