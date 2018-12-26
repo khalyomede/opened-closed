@@ -1,5 +1,8 @@
 # Opened Closed
 
+![Version](https://img.shields.io/npm/v/opened-closed.svg)
+![License](https://img.shields.io/npm/l/opened-closed.svg) ![Gzip & minified size](https://img.shields.io/bundlephobia/minzip/opened-closed.svg)
+
 ![](https://img.shields.io/codeship/ca85c7c0-e8cc-0136-0c9e-7620f6fdb86b.svg)
 [![Coverage Status](https://coveralls.io/repos/github/khalyomede/opened-closed/badge.svg?branch=master)](https://coveralls.io/github/khalyomede/opened-closed?branch=master)
 ![Mutations](https://img.shields.io/badge/mutations-0.00%25-brightgreen.svg)
