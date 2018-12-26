@@ -53,19 +53,25 @@ const blocks = jsdocapi.explainSync({
 let markdown = "";
 let summary = h2("Summary");
 
-summary += ul(link("Constructor", "#OpenedClosed"));
-
 for (const block of blocks) {
 	if (!("description" in block && block.description)) {
 		continue;
 	}
 
-	if ("kind" in block && block.kind === "member") {
-		summary += ul(link(block.name, `#${block.longname}`));
-	}
+	if ("name" in block) {
+		markdown += h3(block.name);
 
-	if ("longname" in block) {
-		markdown += h3(block.longname);
+		if ("kind" in block) {
+			let name = block.name;
+			let url = "#" + block.name;
+
+			if (block.kind === "member" && "memberof" in block) {
+				name = `${block.memberof}.${block.name}()`;
+				url = `#${block.name}`;
+			}
+
+			summary += ul(link(name, url));
+		}
 	} else {
 		markdown += h3("unnamed");
 	}

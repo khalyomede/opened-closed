@@ -5,9 +5,10 @@ Technical documentation for end developpers.
 ## Summary
 
 - [Constructor](#OpenedClosed)
-- [opened](#OpenedClosed#opened)
-- [availability](#OpenedClosed#availability)
-- [closeIn](#OpenedClosed#closeIn)
+- [OpenedClosed](#OpenedClosed)
+- [OpenedClosed.opened()](#opened)
+- [OpenedClosed.availability()](#availability)
+- [OpenedClosed.closeIn()](#closeIn)
 ### OpenedClosed
 
 Provides store availabiltiy, near-to-close information and more.
@@ -81,7 +82,7 @@ const store = new OpenedClosed({
 });
 ```
 [back to menu](#summary)
-### OpenedClosed#opened
+### opened
 
 Returns true if the store is opened right now, else returns false.
 
@@ -107,7 +108,7 @@ const store = new OpenedClosed({
 store.opened();
 ```
 [back to menu](#summary)
-### OpenedClosed#availability
+### availability
 
 Returns "opened" or "closed" (or the equivalent set in the language options) depending the store is opened right now or not.
 
@@ -133,7 +134,7 @@ const store = new OpenedClosed({
 console.log(store.availability());
 ```
 [back to menu](#summary)
-### OpenedClosed#closeIn
+### closeIn
 
 Returns the number of seconds before the store will close.
 
