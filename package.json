@@ -58,5 +58,10 @@
 		"mutate": "stryker run --mutate lib/main.js",
 		"coverage": "nyc mocha test/opened-closed && nyc report --reporter=text-lcov | coveralls",
 		"make:api": "node script/make-api.js"
-	}
+	},
+	"files": [
+		"lib/main.js",
+		"dist/opened-closed.js",
+		"dist/opened-closed.min.js"
+	]
 }
