@@ -736,46 +736,25 @@ describe("private functions", function() {
 			}).to.not.throw(Error);
 		});
 
-		const samples2 = [
-			{ type: "an integer", value: 42 },
-			{ type: "a float", value: 3.14 },
-			{ type: "a string", value: "foo" },
-			{ type: "an empty string", value: "" },
-			{ type: "an array", value: [1, 2, 3] },
-			{ type: "an empty array", value: [] },
-			{ type: "a boolean (false)", value: false },
-			{ type: "a boolean (true)", value: true },
-		];
-
-		for (const sample of samples2) {
-			it(`should not throw an Error if openings is ${sample.type} instead of an object`, function() {
-				expect(function() {
-					new OpenedClosed({
-						timezone: "GMT+0100",
-						openings: sample.value,
-					});
-				}).to.throw("malformed openings data");
-			});
-		}
+		it(`should not throw an Error if openings is not an object`, function() {
+			expect(function() {
+				new OpenedClosed({
+					timezone: "GMT+0100",
+					openings: 42,
+				});
+			}).to.throw("malformed openings data");
+		});
 	});
 
 	describe("this._throwErrorIfClosingDateIncorrect", function() {
-		const samples = [
-			{ type: "null", value: null },
-			{ type: "undefined", value: undefined },
-			{ type: "an empty array", value: [] },
-		];
-
-		for (const sample of samples) {
-			it(`should not throw an Error if the closings attribute is ${sample.type}`, function() {
-				expect(function() {
-					new OpenedClosed({
-						timezone: "GMT+0100",
-						closings: sample.value,
-					});
-				}).to.not.throw(Error);
-			});
-		}
+		it(`should not throw an Error if the closings attribute is not an array`, function() {
+			expect(function() {
+				new OpenedClosed({
+					timezone: "GMT+0100",
+					closings: 42,
+				});
+			}).to.not.throw("Error: malformed closings data");
+		});
 
 		it("should not throw an Error if the closings attribute is not set", function() {
 			expect(function() {
@@ -783,51 +762,23 @@ describe("private functions", function() {
 			}).to.not.throw(Error);
 		});
 
-		const samples2 = [
-			{ type: "an integer", value: 42 },
-			{ type: "a float", value: 3.14 },
-			{ type: "an object", value: { type: "GET", async: true } },
-			{ type: "an empty object", value: {} },
-			{ type: "a string", value: "foo" },
-			{ type: "an empty string", value: "" },
-			{ type: "a boolean (false)", value: false },
-			{ type: "a boolean (true)", value: true },
-			{ type: "a date", value: new Date() },
-		];
+		it(`should throw an Error if the closings attribute is not an array`, function() {
+			expect(function() {
+				new OpenedClosed({
+					timezone: "GMT+0100",
+					closings: 42,
+				});
+			}).to.throw("malformed closings data");
+		});
 
-		for (const sample of samples2) {
-			it(`should throw an Error if the closings attribute is a ${sample.type} instead of an array`, function() {
-				expect(function() {
-					new OpenedClosed({
-						timezone: "GMT+0100",
-						closings: sample.value,
-					});
-				}).to.throw("malformed closings data");
-			});
-		}
-
-		const samples3 = [
-			{ type: "an integer", value: 42 },
-			{ type: "a float", value: 3.14 },
-			{ type: "an array", value: [1, 2, 3] },
-			{ type: "an empty array", value: [] },
-			{ type: "a string", value: "foo" },
-			{ type: "an empty string", value: "" },
-			{ type: "a boolean (false)", value: false },
-			{ type: "a boolean (true)", value: true },
-			{ type: "a date", value: new Date() },
-		];
-
-		for (const sample of samples3) {
-			it(`should throw an Error if the closings contain ${sample.type} instead of an object`, function() {
-				expect(function() {
-					new OpenedClosed({
-						timezone: "GMT+0100",
-						closings: [sample.value],
-					});
-				}).to.throw("each closing dates should be an object");
-			});
-		}
+		it(`should throw an Error if the closings does not contain an object`, function() {
+			expect(function() {
+				new OpenedClosed({
+					timezone: "GMT+0100",
+					closings: [42],
+				});
+			}).to.throw("each closing dates should be an object");
+		});
 
 		it("should throw an Error if one of the closings dates does not have a from key", function() {
 			expect(function() {
