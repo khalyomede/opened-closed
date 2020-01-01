@@ -43,6 +43,7 @@
     "jsdoc-api": "5.*",
     "markdown-table": "1.*",
     "mocha": "6.*",
+    "np": "5.*",
     "npm-check-updates": "4.*",
     "nyc": "15.*",
     "stryker": "0.*",
@@ -60,7 +61,8 @@
     "test": "nyc mocha test/opened-closed",
     "mutate": "stryker run --mutate lib/main.js",
     "coverage": "nyc mocha test/opened-closed && nyc report --reporter=text-lcov | coveralls",
-    "make:api": "node script/make-api.js"
+    "make:api": "node script/make-api.js",
+    "release": "np"
   },
   "files": [
     "lib/main.js",
