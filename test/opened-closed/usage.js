@@ -31,8 +31,8 @@ describe("usage", function() {
 		const store = new OpenedClosed({
 			timezone: "GMT+0100",
 			openings: {
-				monday: [{ start: "10:00", end: "13:00" }]
-			}
+				monday: [{ start: "10:00", end: "13:00" }],
+			},
 		});
 
 		expect(store.opened()).to.be.equal(true);
@@ -52,8 +52,8 @@ describe("usage", function() {
 		const store = new OpenedClosed({
 			timezone: "GMT+0100",
 			openings: {
-				monday: [{ start: "10:00", end: "13:00" }]
-			}
+				monday: [{ start: "10:00", end: "13:00" }],
+			},
 		});
 
 		expect(store.availability()).to.be.equal("opened");
@@ -67,8 +67,8 @@ describe("usage", function() {
 		const store = new OpenedClosed({
 			timezone: "GMT+0100",
 			openings: {
-				monday: [{ start: "10:00", end: "13:00" }]
-			}
+				monday: [{ start: "10:00", end: "13:00" }],
+			},
 		});
 
 		expect(store.opened()).to.be.equal(false);
@@ -82,8 +82,8 @@ describe("usage", function() {
 		const store = new OpenedClosed({
 			timezone: "GMT+0100",
 			openings: {
-				monday: [{ start: "10:00", end: "13:00" }]
-			}
+				monday: [{ start: "10:00", end: "13:00" }],
+			},
 		});
 
 		expect(store.availability()).to.be.equal("closed");
@@ -103,8 +103,8 @@ describe("usage", function() {
 		const store = new OpenedClosed({
 			timezone: "GMT+0100",
 			openings: {
-				monday: [{ start: "15:00", end: "18:00" }]
-			}
+				monday: [{ start: "15:00", end: "18:00" }],
+			},
 		});
 
 		expect(store.opened()).to.be.equal(true);
@@ -124,8 +124,8 @@ describe("usage", function() {
 		const store = new OpenedClosed({
 			timezone: "GMT+0100",
 			openings: {
-				monday: [{ start: "15:00", end: "18:00" }]
-			}
+				monday: [{ start: "15:00", end: "18:00" }],
+			},
 		});
 
 		expect(store.availability()).to.be.equal("opened");
@@ -145,8 +145,8 @@ describe("usage", function() {
 		const store = new OpenedClosed({
 			timezone: "GMT+0000",
 			openings: {
-				monday: [{ start: "15:00", end: "18:00" }]
-			}
+				monday: [{ start: "15:00", end: "18:00" }],
+			},
 		});
 
 		expect(store.opened()).to.be.equal(true);
@@ -166,8 +166,8 @@ describe("usage", function() {
 		const store = new OpenedClosed({
 			timezone: "GMT+0000",
 			openings: {
-				monday: [{ start: "15:00", end: "18:00" }]
-			}
+				monday: [{ start: "15:00", end: "18:00" }],
+			},
 		});
 
 		expect(store.availability()).to.be.equal("opened");
@@ -187,8 +187,8 @@ describe("usage", function() {
 		const store = new OpenedClosed({
 			timezone: "GMT-0100",
 			openings: {
-				monday: [{ start: "15:00", end: "18:00" }]
-			}
+				monday: [{ start: "15:00", end: "18:00" }],
+			},
 		});
 
 		expect(store.opened()).to.be.equal(false);
@@ -208,8 +208,8 @@ describe("usage", function() {
 		const store = new OpenedClosed({
 			timezone: "GMT-0100",
 			openings: {
-				monday: [{ start: "15:00", end: "18:00" }]
-			}
+				monday: [{ start: "15:00", end: "18:00" }],
+			},
 		});
 
 		expect(store.availability()).to.be.equal("closed");
@@ -229,8 +229,8 @@ describe("usage", function() {
 		const store = new OpenedClosed({
 			timezone: "GMT+0100",
 			openings: {
-				monday: [{ start: "15:00", end: "18:00" }]
-			}
+				monday: [{ start: "15:00", end: "18:00" }],
+			},
 		});
 
 		expect(store.closeIn()).to.be.equal(0);
@@ -250,8 +250,8 @@ describe("usage", function() {
 		const store = new OpenedClosed({
 			timezone: "GMT+0100",
 			openings: {
-				monday: [{ start: "15:00", end: "18:00" }]
-			}
+				monday: [{ start: "15:00", end: "18:00" }],
+			},
 		});
 
 		expect(store.closeIn()).to.be.equal(3600);
@@ -271,8 +271,8 @@ describe("usage", function() {
 		const store = new OpenedClosed({
 			timezone: "GMT+0100",
 			openings: {
-				monday: [{ start: "15:00", end: "18:00" }]
-			}
+				monday: [{ start: "15:00", end: "18:00" }],
+			},
 		});
 
 		expect(store.closeIn()).to.be.equal(3600);
@@ -281,7 +281,7 @@ describe("usage", function() {
 	describe("with no openings", function() {
 		it("should return false if we check if the store is opened but there is no openings", function() {
 			const store = new OpenedClosed({
-				timezone: "GMT+0100"
+				timezone: "GMT+0100",
 			});
 
 			expect(store.opened()).to.be.false;
@@ -289,7 +289,7 @@ describe("usage", function() {
 
 		it("should return that the store closes in 0 seconds if there is no openings", function() {
 			const store = new OpenedClosed({
-				timezone: "GMT+0100"
+				timezone: "GMT+0100",
 			});
 
 			expect(store.closeIn()).to.be.equal(0);
@@ -297,7 +297,7 @@ describe("usage", function() {
 
 		it('should return "closed" if the store does not have any openings', function() {
 			const store = new OpenedClosed({
-				timezone: "GMT+0100"
+				timezone: "GMT+0100",
 			});
 
 			expect(store.availability()).to.be.equal("closed");
@@ -308,8 +308,8 @@ describe("usage", function() {
 			const store = new OpenedClosed({
 				timezone: "GMT+0100",
 				language: {
-					closed: translation
-				}
+					closed: translation,
+				},
 			});
 
 			expect(store.availability()).to.be.equal(translation);
@@ -333,9 +333,9 @@ describe("usage", function() {
 				openings: {
 					monday: [
 						{ start: "10:00", end: "13:00" },
-						{ start: "15:00", end: "18:00" }
-					]
-				}
+						{ start: "15:00", end: "18:00" },
+					],
+				},
 			});
 
 			expect(store.opened()).to.be.true;
@@ -357,9 +357,9 @@ describe("usage", function() {
 				openings: {
 					monday: [
 						{ start: "10:00", end: "13:00" },
-						{ start: "15:00", end: "18:00" }
-					]
-				}
+						{ start: "15:00", end: "18:00" },
+					],
+				},
 			});
 
 			expect(store.opened()).to.be.true;
@@ -381,9 +381,9 @@ describe("usage", function() {
 				openings: {
 					monday: [
 						{ start: "10:00", end: "13:00" },
-						{ start: "15:00", end: "18:00" }
-					]
-				}
+						{ start: "15:00", end: "18:00" },
+					],
+				},
 			});
 
 			expect(store.opened()).to.be.true;
@@ -405,9 +405,9 @@ describe("usage", function() {
 				openings: {
 					monday: [
 						{ start: "10:00", end: "13:00" },
-						{ start: "15:00", end: "18:00" }
-					]
-				}
+						{ start: "15:00", end: "18:00" },
+					],
+				},
 			});
 
 			expect(store.opened()).to.be.true;
@@ -435,14 +435,14 @@ describe("usage", function() {
 					thursday: [{ start: "00:00", end: "23:59" }],
 					friday: [{ start: "00:00", end: "23:59" }],
 					saturday: [{ start: "00:00", end: "23:59" }],
-					sunday: [{ start: "00:00", end: "23:59" }]
+					sunday: [{ start: "00:00", end: "23:59" }],
 				},
 				closings: [
 					{
 						from: new Date("2018-12-25 00:00:00 GMT+0100"),
-						to: new Date("2018-12-25 23:59:59 GMT+0100")
-					}
-				]
+						to: new Date("2018-12-25 23:59:59 GMT+0100"),
+					},
+				],
 			});
 
 			expect(store.opened()).to.be.false;
@@ -470,14 +470,14 @@ describe("usage", function() {
 					thursday: [{ start: "00:00", end: "23:59" }],
 					friday: [{ start: "00:00", end: "23:59" }],
 					saturday: [{ start: "00:00", end: "23:59" }],
-					sunday: [{ start: "00:00", end: "23:59" }]
+					sunday: [{ start: "00:00", end: "23:59" }],
 				},
 				closings: [
 					{
 						from: new Date("2018-12-24 10:00:00 GMT+0100"),
-						to: new Date("2018-12-24 14:00:00 GMT+0100")
-					}
-				]
+						to: new Date("2018-12-24 14:00:00 GMT+0100"),
+					},
+				],
 			});
 
 			expect(store.opened()).to.be.false;

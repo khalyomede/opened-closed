@@ -309,9 +309,7 @@ class OpenedClosed {
 	}
 
 	private _currentDate(options): string {
-		return `${options.year}-${options.month}-${options.day} ${
-			options.time
-		} ${this._options.timezone}`;
+		return `${options.year}-${options.month}-${options.day} ${options.time} ${this._options.timezone}`;
 	}
 
 	/**
@@ -335,7 +333,7 @@ class OpenedClosed {
 			year: year,
 			month: month,
 			day: day,
-			time: dateString
+			time: dateString,
 		});
 
 		const result = new Date(date);
@@ -391,7 +389,7 @@ class OpenedClosed {
 		if ("language" in this._options === false) {
 			this._options.language = {
 				opened: "opened",
-				closed: "closed"
+				closed: "closed",
 			};
 
 			return;

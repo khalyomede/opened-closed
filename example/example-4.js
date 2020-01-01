@@ -5,13 +5,13 @@ const store = new OpenedClosed({
 	openings: {
 		monday: [
 			{ start: "10:00", end: "13:00" },
-			{ start: "15:00", end: "18:00" }
-		]
+			{ start: "15:00", end: "18:00" },
+		],
 	},
 	language: {
 		opened: "ouvert",
-		closed: "fermé"
-	}
+		closed: "fermé",
+	},
 });
 
 console.log(store.availability());

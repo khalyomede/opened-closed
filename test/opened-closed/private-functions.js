@@ -2,7 +2,7 @@ const expect = require("chai").expect;
 const OpenedClosed = require("../../lib/main");
 
 const options = {
-	timezone: "GMT+0100"
+	timezone: "GMT+0100",
 };
 
 const _now = OpenedClosed.prototype._now;
@@ -23,8 +23,8 @@ describe("private functions", function() {
 	const options = {
 		timezone: "GMT+0100",
 		openings: {
-			monday: [{ start: "10:00", end: "13:00" }]
-		}
+			monday: [{ start: "10:00", end: "13:00" }],
+		},
 	};
 
 	describe("this._options.language", function() {
@@ -33,7 +33,7 @@ describe("private functions", function() {
 
 			expect(instance._options.language).to.be.deep.equal({
 				opened: "opened",
-				closed: "closed"
+				closed: "closed",
 			});
 		});
 
@@ -41,16 +41,16 @@ describe("private functions", function() {
 			const instance = new OpenedClosed({
 				timezone: "GMT+0100",
 				openings: {
-					monday: [{ start: "10:00", end: "13:00" }]
+					monday: [{ start: "10:00", end: "13:00" }],
 				},
 				language: {
-					opened: "ouvert"
-				}
+					opened: "ouvert",
+				},
 			});
 
 			expect(instance._options.language).to.be.deep.equal({
 				opened: "ouvert",
-				closed: "closed"
+				closed: "closed",
 			});
 		});
 
@@ -58,16 +58,16 @@ describe("private functions", function() {
 			const instance = new OpenedClosed({
 				timezone: "GMT+0100",
 				openings: {
-					monday: [{ start: "10:00", end: "13:00" }]
+					monday: [{ start: "10:00", end: "13:00" }],
 				},
 				language: {
-					closed: "fermé"
-				}
+					closed: "fermé",
+				},
 			});
 
 			expect(instance._options.language).to.be.deep.equal({
 				opened: "opened",
-				closed: "fermé"
+				closed: "fermé",
 			});
 		});
 
@@ -75,17 +75,17 @@ describe("private functions", function() {
 			const instance = new OpenedClosed({
 				timezone: "GMT+0100",
 				openings: {
-					monday: [{ start: "10:00", end: "13:00" }]
+					monday: [{ start: "10:00", end: "13:00" }],
 				},
 				language: {
 					opened: "ouvert",
-					closed: "fermé"
-				}
+					closed: "fermé",
+				},
 			});
 
 			expect(instance._options.language).to.be.deep.equal({
 				opened: "ouvert",
-				closed: "fermé"
+				closed: "fermé",
 			});
 		});
 	});
@@ -106,7 +106,7 @@ describe("private functions", function() {
 			{ day: "wednesday", expected: 3 },
 			{ day: "thursday", expected: 4 },
 			{ day: "friday", expected: 5 },
-			{ day: "saturday", expected: 6 }
+			{ day: "saturday", expected: 6 },
 		];
 
 		for (const correspondence of correspondences) {
@@ -166,7 +166,7 @@ describe("private functions", function() {
 			const timezone = "GMT+0100";
 
 			const instance = new OpenedClosed({
-				timezone: timezone
+				timezone: timezone,
 			});
 
 			const year = instance._currentYear();
@@ -184,7 +184,7 @@ describe("private functions", function() {
 					year: year,
 					month: month,
 					day: day,
-					time: time
+					time: time,
 				})
 			).to.be.equal(
 				`${yearNow}-${monthNow}-${dayNow} ${time} ${timezone}`
@@ -206,13 +206,11 @@ describe("private functions", function() {
 			{ type: "empty object", value: {} },
 			{ type: "regular expression", value: new RegExp("[a-z]+") },
 			{ type: "empty regular expression", value: new RegExp() },
-			{ type: "date string", value: "2018-01-01 20:42:00" }
+			{ type: "date string", value: "2018-01-01 20:42:00" },
 		];
 
 		for (const sample of samples) {
-			it(`should throw an Error if the date is not a Date but a ${
-				sample.type
-			}`, function() {
+			it(`should throw an Error if the date is not a Date but a ${sample.type}`, function() {
 				const instance = new OpenedClosed(options);
 
 				expect(function() {
@@ -284,13 +282,11 @@ describe("private functions", function() {
 			{ type: "empty object", value: {} },
 			{ type: "regular expression", value: new RegExp("[a-z]+") },
 			{ type: "empty regular expression", value: new RegExp() },
-			{ type: "date", value: new Date() }
+			{ type: "date", value: new Date() },
 		];
 
 		for (const sample of samples) {
-			it(`should throw an Error if the parameter is not an array but a ${
-				sample.type
-			}`, function() {
+			it(`should throw an Error if the parameter is not an array but a ${sample.type}`, function() {
 				const instance = new OpenedClosed(options);
 
 				expect(function() {
@@ -328,7 +324,7 @@ describe("private functions", function() {
 			{ name: "thursday", value: 4 },
 			{ name: "friday", value: 5 },
 			{ name: "saturday", value: 6 },
-			{ name: "sunday", value: 0 }
+			{ name: "sunday", value: 0 },
 		];
 
 		const store = new OpenedClosed(options);
@@ -344,9 +340,7 @@ describe("private functions", function() {
 
 			for (const badDay of days) {
 				if (badDay.name !== day.name) {
-					it(`should return false if today is ${day.name} and not ${
-						badDay.name
-					}`, function() {
+					it(`should return false if today is ${day.name} and not ${badDay.name}`, function() {
 						OpenedClosed.prototype._dayNow = function() {
 							return day.value;
 						};
@@ -407,7 +401,7 @@ describe("private functions", function() {
 	describe("this._nowIsClosed", function() {
 		it("should return true if there is no openings", function() {
 			const store = new OpenedClosed({
-				timezone: "GMT+0100"
+				timezone: "GMT+0100",
 			});
 
 			expect(store._nowIsClosed()).to.be.true;
@@ -429,9 +423,9 @@ describe("private functions", function() {
 				closings: [
 					{
 						from: new Date("2018-12-17 00:00:00 GMT+0100"),
-						to: new Date("2018-12-17 23:59:59 GMT+0100")
-					}
-				]
+						to: new Date("2018-12-17 23:59:59 GMT+0100"),
+					},
+				],
 			});
 
 			expect(store._nowIsClosed()).to.be.true;
@@ -453,15 +447,15 @@ describe("private functions", function() {
 				openings: {
 					monday: [
 						{ start: "10:00", end: "13:00" },
-						{ start: "15:00", end: "18:00" }
-					]
+						{ start: "15:00", end: "18:00" },
+					],
 				},
 				closings: [
 					{
 						from: new Date("2018-12-17 00:00:00 GMT+0100"),
-						to: new Date("2018-12-17 23:59:59 GMT+0100")
-					}
-				]
+						to: new Date("2018-12-17 23:59:59 GMT+0100"),
+					},
+				],
 			});
 
 			expect(store._nowIsClosed()).to.be.true;
@@ -483,9 +477,9 @@ describe("private functions", function() {
 				openings: {
 					monday: [
 						{ start: "10:00", end: "13:00" },
-						{ start: "15:00", end: "18:00" }
-					]
-				}
+						{ start: "15:00", end: "18:00" },
+					],
+				},
 			});
 
 			expect(store._nowIsClosed()).to.be.false;
@@ -507,15 +501,15 @@ describe("private functions", function() {
 				openings: {
 					monday: [
 						{ start: "10:00", end: "13:00" },
-						{ start: "15:00", end: "18:00" }
-					]
+						{ start: "15:00", end: "18:00" },
+					],
 				},
 				closings: [
 					{
 						from: new Date("2018-12-17 00:00:00 GMT+0100"),
-						to: new Date("2018-12-17 06:00:00 GMT+0100")
-					}
-				]
+						to: new Date("2018-12-17 06:00:00 GMT+0100"),
+					},
+				],
 			});
 
 			expect(store._nowIsClosed()).to.be.false;
@@ -538,15 +532,15 @@ describe("private functions", function() {
 					openings: {
 						monday: [
 							{ start: "10:00", end: "13:00" },
-							{ start: "15:00", end: "18:00" }
-						]
+							{ start: "15:00", end: "18:00" },
+						],
 					},
 					closings: [
 						{
 							from: new Date("2018-12-17 00:00:00 GMT+0100"),
-							to: new Date("2018-12-17 23:59:59 GMT+0100")
-						}
-					]
+							to: new Date("2018-12-17 23:59:59 GMT+0100"),
+						},
+					],
 				});
 
 				expect(store._nowIsClosed()).to.be.true;
@@ -567,15 +561,15 @@ describe("private functions", function() {
 					openings: {
 						monday: [
 							{ start: "10:00", end: "13:00" },
-							{ start: "15:00", end: "18:00" }
-						]
+							{ start: "15:00", end: "18:00" },
+						],
 					},
 					closings: [
 						{
 							from: new Date("2018-12-17 00:00:00 GMT+0100"),
-							to: new Date("2018-12-17 23:59:59 GMT+0100")
-						}
-					]
+							to: new Date("2018-12-17 23:59:59 GMT+0100"),
+						},
+					],
 				});
 
 				expect(store._nowIsClosed()).to.be.true;
@@ -588,8 +582,8 @@ describe("private functions", function() {
 			const store = new OpenedClosed({
 				timezone: "GMT+0100",
 				openings: {
-					monday: [{ start: "10:00", end: "13:00" }]
-				}
+					monday: [{ start: "10:00", end: "13:00" }],
+				},
 			});
 
 			expect(store._hasOpenings()).to.be.true;
@@ -597,7 +591,7 @@ describe("private functions", function() {
 
 		it("should return false if there is no openings", function() {
 			const store = new OpenedClosed({
-				timezone: "GMT+0100"
+				timezone: "GMT+0100",
 			});
 
 			expect(store._hasOpenings()).to.be.false;
@@ -606,7 +600,7 @@ describe("private functions", function() {
 		it("should return false if there is an empty openings object", function() {
 			const store = new OpenedClosed({
 				timezone: "GMT+0100",
-				openings: {}
+				openings: {},
 			});
 
 			expect(store._hasOpenings()).to.be.false;
@@ -616,7 +610,7 @@ describe("private functions", function() {
 	describe("this._getDateFromString", function() {
 		it("should return the correct date from a time", function() {
 			const store = new OpenedClosed({
-				timezone: "GMT+0100"
+				timezone: "GMT+0100",
 			});
 
 			OpenedClosed.prototype._currentYear = function() {
@@ -647,13 +641,11 @@ describe("private functions", function() {
 			{ type: "an empty object", value: {} },
 			{ type: "a regular expression", value: new RegExp("[a-z]+") },
 			{ type: "an empty regular expression", value: new RegExp() },
-			{ type: "a date", value: new Date() }
+			{ type: "a date", value: new Date() },
 		];
 
 		for (const sample of samples) {
-			it(`should throw an Error if the time is ${
-				sample.type
-			}`, function() {
+			it(`should throw an Error if the time is ${sample.type}`, function() {
 				expect(function() {
 					const store = new OpenedClosed(options);
 
@@ -664,13 +656,11 @@ describe("private functions", function() {
 
 		const samples2 = [
 			{ type: "an invalid date", value: "foo" },
-			{ type: "an empty date", value: "" }
+			{ type: "an empty date", value: "" },
 		];
 
 		for (const sample of samples2) {
-			it(`should throw an Error if the time is ${
-				sample.type
-			}`, function() {
+			it(`should throw an Error if the time is ${sample.type}`, function() {
 				expect(function() {
 					const store = new OpenedClosed(options);
 
@@ -685,7 +675,7 @@ describe("private functions", function() {
 			const instance = new OpenedClosed(options);
 			const expected = {
 				opened: "opened",
-				closed: "closed"
+				closed: "closed",
 			};
 			const actual = instance._options.language;
 
@@ -707,13 +697,11 @@ describe("private functions", function() {
 			{ day: "thursday", date: new Date("2018-12-27"), expected: 4 },
 			{ day: "friday", date: new Date("2018-12-28"), expected: 5 },
 			{ day: "saturday", date: new Date("2018-12-29"), expected: 6 },
-			{ day: "sunday", date: new Date("2018-12-30"), expected: 0 }
+			{ day: "sunday", date: new Date("2018-12-30"), expected: 0 },
 		];
 
 		for (const day of days) {
-			it(`should return ${day.expected} if we are today ${
-				day.day
-			}`, function() {
+			it(`should return ${day.expected} if we are today ${day.day}`, function() {
 				const instance = new OpenedClosed(options);
 				const now = day.date;
 
@@ -728,17 +716,15 @@ describe("private functions", function() {
 		const samples = [
 			{ type: "an empty object", value: {} },
 			{ type: "null", value: null },
-			{ type: "undefined", value: undefined }
+			{ type: "undefined", value: undefined },
 		];
 
 		for (const sample of samples) {
-			it(`should not throw an Error if openings dates is ${
-				sample.type
-			}`, function() {
+			it(`should not throw an Error if openings dates is ${sample.type}`, function() {
 				expect(function() {
 					new OpenedClosed({
 						timezone: "GMT+0100",
-						openings: sample.value
+						openings: sample.value,
 					});
 				}).to.not.throw(Error);
 			});
@@ -758,17 +744,15 @@ describe("private functions", function() {
 			{ type: "an array", value: [1, 2, 3] },
 			{ type: "an empty array", value: [] },
 			{ type: "a boolean (false)", value: false },
-			{ type: "a boolean (true)", value: true }
+			{ type: "a boolean (true)", value: true },
 		];
 
 		for (const sample of samples2) {
-			it(`should not throw an Error if openings is ${
-				sample.type
-			} instead of an object`, function() {
+			it(`should not throw an Error if openings is ${sample.type} instead of an object`, function() {
 				expect(function() {
 					new OpenedClosed({
 						timezone: "GMT+0100",
-						openings: sample.value
+						openings: sample.value,
 					});
 				}).to.throw("malformed openings data");
 			});
@@ -779,17 +763,15 @@ describe("private functions", function() {
 		const samples = [
 			{ type: "null", value: null },
 			{ type: "undefined", value: undefined },
-			{ type: "an empty array", value: [] }
+			{ type: "an empty array", value: [] },
 		];
 
 		for (const sample of samples) {
-			it(`should not throw an Error if the closings attribute is ${
-				sample.type
-			}`, function() {
+			it(`should not throw an Error if the closings attribute is ${sample.type}`, function() {
 				expect(function() {
 					new OpenedClosed({
 						timezone: "GMT+0100",
-						closings: sample.value
+						closings: sample.value,
 					});
 				}).to.not.throw(Error);
 			});
@@ -810,17 +792,15 @@ describe("private functions", function() {
 			{ type: "an empty string", value: "" },
 			{ type: "a boolean (false)", value: false },
 			{ type: "a boolean (true)", value: true },
-			{ type: "a date", value: new Date() }
+			{ type: "a date", value: new Date() },
 		];
 
 		for (const sample of samples2) {
-			it(`should throw an Error if the closings attribute is a ${
-				sample.type
-			} instead of an array`, function() {
+			it(`should throw an Error if the closings attribute is a ${sample.type} instead of an array`, function() {
 				expect(function() {
 					new OpenedClosed({
 						timezone: "GMT+0100",
-						closings: sample.value
+						closings: sample.value,
 					});
 				}).to.throw("malformed closings data");
 			});
@@ -835,17 +815,15 @@ describe("private functions", function() {
 			{ type: "an empty string", value: "" },
 			{ type: "a boolean (false)", value: false },
 			{ type: "a boolean (true)", value: true },
-			{ type: "a date", value: new Date() }
+			{ type: "a date", value: new Date() },
 		];
 
 		for (const sample of samples3) {
-			it(`should throw an Error if the closings contain ${
-				sample.type
-			} instead of an object`, function() {
+			it(`should throw an Error if the closings contain ${sample.type} instead of an object`, function() {
 				expect(function() {
 					new OpenedClosed({
 						timezone: "GMT+0100",
-						closings: [sample.value]
+						closings: [sample.value],
 					});
 				}).to.throw("each closing dates should be an object");
 			});
@@ -855,7 +833,7 @@ describe("private functions", function() {
 			expect(function() {
 				new OpenedClosed({
 					timezone: "GMT+0100",
-					closings: [{ to: new Date() }]
+					closings: [{ to: new Date() }],
 				});
 			}).to.throw('key "from" is missing');
 		});
@@ -864,7 +842,7 @@ describe("private functions", function() {
 			expect(function() {
 				new OpenedClosed({
 					timezone: "GMT+0100",
-					closings: [{ from: new Date() }]
+					closings: [{ from: new Date() }],
 				});
 			}).to.throw('key "to" is missing');
 		});
@@ -876,9 +854,9 @@ describe("private functions", function() {
 					closings: [
 						{
 							from: "2018-01-01 00:00:00",
-							to: new Date("2018-01-01 23:59:00")
-						}
-					]
+							to: new Date("2018-01-01 23:59:00"),
+						},
+					],
 				});
 			}).to.throw('key "from" should be a Date');
 		});
@@ -890,9 +868,9 @@ describe("private functions", function() {
 					closings: [
 						{
 							from: new Date("2018-01-01 00:00:00"),
-							to: "2018-01-01 23:59:00"
-						}
-					]
+							to: "2018-01-01 23:59:00",
+						},
+					],
 				});
 			}).to.throw('key "to" should be a Date');
 		});
@@ -904,10 +882,10 @@ describe("private functions", function() {
 					closings: [
 						{
 							from: new Date("2018-01-01"),
-							to: new Date("2018-12-01")
+							to: new Date("2018-12-01"),
 						},
-						42
-					]
+						42,
+					],
 				});
 			}).to.throw("each closing dates should be an object");
 		});

@@ -16,7 +16,7 @@ describe("public functions", function() {
 			{ type: "boolean(true)", value: true },
 			{ type: "boolean(false)", value: false },
 			{ type: "string", value: "hello world" },
-			{ type: "empty string", value: "" }
+			{ type: "empty string", value: "" },
 		];
 
 		const languageSamples = [
@@ -32,13 +32,11 @@ describe("public functions", function() {
 			{ type: "boolean(true)", value: true },
 			{ type: "boolean(false)", value: false },
 			{ type: "object", value: { type: "GET", async: true } },
-			{ type: "empty object", value: {} }
+			{ type: "empty object", value: {} },
 		];
 
 		for (const sample of optionsSamples) {
-			it(`should throw an Error if it is constructed with a variable of type ${
-				sample.type
-			}`, function() {
+			it(`should throw an Error if it is constructed with a variable of type ${sample.type}`, function() {
 				expect(function() {
 					new OpenedClosed(sample.value);
 				}).to.throw("expected parameter 1 to be an object");
@@ -55,35 +53,31 @@ describe("public functions", function() {
 			expect(function() {
 				new OpenedClosed({
 					openings: {
-						monday: [{ start: "10:00", end: "13:00" }]
-					}
+						monday: [{ start: "10:00", end: "13:00" }],
+					},
 				});
 			}).to.throw("options is missing timezone");
 		});
 
 		for (const sample of optionsSamples) {
-			it(`should throw an Error if it is constructed with an option language with type ${
-				sample.type
-			}`, function() {
+			it(`should throw an Error if it is constructed with an option language with type ${sample.type}`, function() {
 				expect(function() {
 					new OpenedClosed({
 						timezone: "GMT+0100",
-						language: sample.value
+						language: sample.value,
 					});
 				}).to.throw("language options should be an object");
 			});
 		}
 
 		for (const sample of languageSamples) {
-			it(`should throw an Error if it is constructed with an opened language with type ${
-				sample.type
-			}`, function() {
+			it(`should throw an Error if it is constructed with an opened language with type ${sample.type}`, function() {
 				expect(function() {
 					new OpenedClosed({
 						timezone: "GMT+0100",
 						language: {
-							opened: sample.value
-						}
+							opened: sample.value,
+						},
 					});
 				}).to.throw("opened language is string");
 			});
@@ -94,22 +88,20 @@ describe("public functions", function() {
 				new OpenedClosed({
 					timezone: "GMT+0100",
 					language: {
-						opened: ""
-					}
+						opened: "",
+					},
 				});
 			}).to.throw("opened language is empty");
 		});
 
 		for (const sample of languageSamples) {
-			it(`should throw an Error if it is constructed with an closed language with type ${
-				sample.type
-			}`, function() {
+			it(`should throw an Error if it is constructed with an closed language with type ${sample.type}`, function() {
 				expect(function() {
 					new OpenedClosed({
 						timezone: "GMT+0100",
 						language: {
-							closed: sample.value
-						}
+							closed: sample.value,
+						},
 					});
 				}).to.throw("closed language is string");
 			});
@@ -120,8 +112,8 @@ describe("public functions", function() {
 				new OpenedClosed({
 					timezone: "GMT+0100",
 					language: {
-						closed: ""
-					}
+						closed: "",
+					},
 				});
 			}).to.throw("closed language is empty");
 		});
@@ -133,9 +125,9 @@ describe("public functions", function() {
 					closings: [
 						{
 							from: new Date("2018-01-01"),
-							to: new Date("2018-01-07")
-						}
-					]
+							to: new Date("2018-01-07"),
+						},
+					],
 				});
 			}).to.not.throw(Error);
 		});
@@ -146,7 +138,7 @@ describe("public functions", function() {
 			expect(function() {
 				new OpenedClosed({
 					timezone: "GMT+0100",
-					openings: {}
+					openings: {},
 				});
 			}).to.not.throw(Error);
 		});
@@ -154,7 +146,7 @@ describe("public functions", function() {
 		it("should not throw an Error if the openings is not defined", function() {
 			expect(function() {
 				new OpenedClosed({
-					timezone: "GMT+0100"
+					timezone: "GMT+0100",
 				});
 			}).to.not.throw(Error);
 		});
@@ -164,8 +156,8 @@ describe("public functions", function() {
 				new OpenedClosed({
 					timezone: "GMT+0100",
 					openings: {
-						monday: [{ start: "10:00", end: "13:00" }]
-					}
+						monday: [{ start: "10:00", end: "13:00" }],
+					},
 				});
 			}).to.not.throw(Error);
 		});
@@ -176,8 +168,8 @@ describe("public functions", function() {
 					timezone: "GMT+0100",
 					openings: {
 						monday: [],
-						tuesday: [{ start: "10:00", end: "13:00" }]
-					}
+						tuesday: [{ start: "10:00", end: "13:00" }],
+					},
 				});
 			}).to.not.throw(Error);
 		});
@@ -194,17 +186,15 @@ describe("public functions", function() {
 			{ type: "an empty array", value: [] },
 			{ type: "a boolean (true)", value: true },
 			{ type: "a boolean (false)", value: false },
-			{ type: "a date", value: new Date() }
+			{ type: "a date", value: new Date() },
 		];
 
 		for (const sample of samples) {
-			it(`should throw an Error if the openings is ${
-				sample.type
-			} instead of a non empty object`, function() {
+			it(`should throw an Error if the openings is ${sample.type} instead of a non empty object`, function() {
 				expect(function() {
 					new OpenedClosed({
 						timezone: "GMT+0100",
-						openings: sample.value
+						openings: sample.value,
 					});
 				}).to.throw("malformed openings data");
 			});
@@ -223,34 +213,30 @@ describe("public functions", function() {
 			{ type: "a boolean (false)", value: false },
 			{ type: "a date", value: new Date() },
 			{ type: "null", value: null },
-			{ type: "undefined", value: undefined }
+			{ type: "undefined", value: undefined },
 		];
 
 		for (const sample of samples2) {
-			it(`should throw an Error if the openings keys are ${
-				sample.type
-			} instead of an Array`, function() {
+			it(`should throw an Error if the openings keys are ${sample.type} instead of an Array`, function() {
 				expect(function() {
 					new OpenedClosed({
 						timezone: "GMT+0100",
 						openings: {
-							monday: sample.value
-						}
+							monday: sample.value,
+						},
 					});
 				}).to.throw("malformed openings data");
 			});
 		}
 
 		for (const sample of samples) {
-			it(`should throw an Error if one of the openings keys is ${
-				sample.type
-			} instead of an Object`, function() {
+			it(`should throw an Error if one of the openings keys is ${sample.type} instead of an Object`, function() {
 				expect(function() {
 					new OpenedClosed({
 						timezone: "GMT+0100",
 						openings: {
-							monday: [sample.value]
-						}
+							monday: [sample.value],
+						},
 					});
 				}).to.throw("malformed openings data");
 			});
@@ -261,8 +247,8 @@ describe("public functions", function() {
 				new OpenedClosed({
 					timezone: "GMT+0100",
 					openings: {
-						monday: [{ end: "13:00" }]
-					}
+						monday: [{ end: "13:00" }],
+					},
 				});
 			}).to.throw("malformed openings data");
 		});
@@ -272,8 +258,8 @@ describe("public functions", function() {
 				new OpenedClosed({
 					timezone: "GMT+0100",
 					openings: {
-						monday: [{ start: "10:00" }]
-					}
+						monday: [{ start: "10:00" }],
+					},
 				});
 			}).to.throw("malformed openings data");
 		});
@@ -292,32 +278,28 @@ describe("public functions", function() {
 			{ type: "a boolean (false)", value: false },
 			{ type: "a date", value: new Date() },
 			{ type: "null", value: null },
-			{ type: "undefined", value: undefined }
+			{ type: "undefined", value: undefined },
 		];
 
 		for (const sample of samples3) {
-			it(`should throw an Error if one of the openings has a key start ${
-				sample.type
-			} instead of a string`, function() {
+			it(`should throw an Error if one of the openings has a key start ${sample.type} instead of a string`, function() {
 				expect(function() {
 					new OpenedClosed({
 						timezone: "GMT+0100",
 						openings: {
-							monday: [{ start: sample.value, end: "13:00" }]
-						}
+							monday: [{ start: sample.value, end: "13:00" }],
+						},
 					});
 				}).to.throw("the time should be a string");
 			});
 
-			it(`should throw an Error if one of the openings has a key end ${
-				sample.type
-			} instead of a string`, function() {
+			it(`should throw an Error if one of the openings has a key end ${sample.type} instead of a string`, function() {
 				expect(function() {
 					new OpenedClosed({
 						timezone: "GMT+0100",
 						openings: {
-							monday: [{ start: "11:00", end: sample.value }]
-						}
+							monday: [{ start: "11:00", end: sample.value }],
+						},
 					});
 				}).to.throw("the time should be a string");
 			});
@@ -328,8 +310,8 @@ describe("public functions", function() {
 				new OpenedClosed({
 					timezone: "GMT+0100",
 					openings: {
-						monday: [{ start: "foo", end: "13:00" }]
-					}
+						monday: [{ start: "foo", end: "13:00" }],
+					},
 				});
 			}).to.throw("the time is not valid");
 		});
@@ -339,8 +321,8 @@ describe("public functions", function() {
 				new OpenedClosed({
 					timezone: "GMT+0100",
 					openings: {
-						monday: [{ start: "10:00", end: "foo" }]
-					}
+						monday: [{ start: "10:00", end: "foo" }],
+					},
 				});
 			}).to.throw("the time is not valid");
 		});
@@ -350,7 +332,7 @@ describe("public functions", function() {
 		it("should return now if the store does not have any openings", function() {
 			const now = new Date();
 			const store = new OpenedClosed({
-				timezone: "GMT+0100"
+				timezone: "GMT+0100",
 			});
 			const expected = parseInt(now.getTime() / 1000);
 			const actual = parseInt(store.closeAt().getTime() / 1000);
@@ -375,9 +357,9 @@ describe("public functions", function() {
 				openings: {
 					monday: [
 						{ start: "09:00", end: "10:00" },
-						{ start: "12:00", end: "13:00" }
-					]
-				}
+						{ start: "12:00", end: "13:00" },
+					],
+				},
 			});
 
 			const expected = parseInt(now.getTime() / 1000);
@@ -401,15 +383,15 @@ describe("public functions", function() {
 			const store = new OpenedClosed({
 				timezone: "GMT+0100",
 				openings: {
-					monday: [{ start: "10:00", end: "13:00" }]
+					monday: [{ start: "10:00", end: "13:00" }],
 				},
 				closings: [
 					{
 						reason: "Exceptional",
 						from: new Date("2018-12-17 00:00:00 GMT+0100"),
-						to: new Date("2018-12-17 23:59:59 GMT+0100")
-					}
-				]
+						to: new Date("2018-12-17 23:59:59 GMT+0100"),
+					},
+				],
 			});
 			const expected = parseInt(now.getTime() / 1000);
 			const actual = parseInt(store.closeAt().getTime() / 1000);
@@ -446,8 +428,8 @@ describe("public functions", function() {
 					thursday: [{ start: "00:00", end: "23:59:59" }],
 					friday: [{ start: "00:00", end: "23:59:59" }],
 					saturday: [{ start: "00:00", end: "23:59:59" }],
-					sunday: [{ start: "00:00", end: "23:59:59" }]
-				}
+					sunday: [{ start: "00:00", end: "23:59:59" }],
+				},
 			});
 			const expected = parseInt(closingDate.getTime() / 1000);
 			const actual = parseInt(store.closeAt().getTime() / 1000);

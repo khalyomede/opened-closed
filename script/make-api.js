@@ -47,7 +47,7 @@ function table(rows, alignement = {}) {
 }
 
 const blocks = jsdocapi.explainSync({
-	files: ["lib/main.js"]
+	files: ["lib/main.js"],
 });
 
 let markdown = "";
