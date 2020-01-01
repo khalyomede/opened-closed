@@ -22,6 +22,8 @@
   ],
   "devDependencies": {
     "@babel/core": "7.*",
+    "@babel/preset-env": "7.*",
+    "@babel/register": "7.*",
     "@types/node": "13.*",
     "babel": "^6.23.0",
     "babel-preset-env": "^1.7.0",
@@ -53,7 +55,7 @@
     "typescript": "3.*"
   },
   "scripts": {
-    "dev": "ncu && gulp watch",
+    "dev": "ncu && gulp start",
     "prod": "ncu && gulp lib && gulp dist && node script/make-api.js",
     "test": "nyc mocha test/opened-closed",
     "mutate": "stryker run --mutate lib/main.js",
