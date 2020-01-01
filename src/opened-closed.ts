@@ -1,30 +1,6 @@
-interface TimeSpan {
-	start: string;
-	end: string;
-}
-
-interface Closing {
-	reason?: string;
-	from: Date;
-	to: Date;
-}
-
-interface TimeSpans {
-	day: Array<TimeSpan>;
-}
-
-interface Language {
-	opened: string;
-	closed: string;
-}
-
-interface Options {
-	locale: string;
-	timezone: string;
-	openings: TimeSpans;
-	closings: Array<Closing>;
-	language: Language;
-}
+import IOptions from "./interface/IOptions";
+import ITimeSpan from "./interface/ITimeSpan";
+import ICurrentDateOptions from "./interface/ICurrentDateOptions";
 
 /**
  * @description Provides store availabiltiy, near-to-close information and more.
@@ -84,7 +60,7 @@ interface Options {
  * });
  */
 class OpenedClosed {
-	private _options: Options;
+	private _options: IOptions;
 	private now: Date;
 
 	private static readonly ERR_OPTIONS_NOT_OBJECT =
@@ -117,7 +93,7 @@ class OpenedClosed {
 	private static DEFAULT_LANGUAGE_CLOSED = "closed";
 	private static DEFAULT_LANGUAGE_OPENED = "opened";
 
-	constructor(options: Options) {
+	constructor(options: IOptions) {
 		if (!this._isObject(options)) {
 			throw new Error(OpenedClosed.ERR_OPTIONS_NOT_OBJECT);
 		}
@@ -258,7 +234,7 @@ class OpenedClosed {
 	 *   timezone: 'GMT+0100'
 	 * });
 	 *
-	 * if(!store.opened()) {
+	 * if(store.opened()) {
 	 *   console.log(store.closeAt());
 	 * }
 	 */
@@ -308,7 +284,7 @@ class OpenedClosed {
 		return new Date();
 	}
 
-	private _currentDate(options): string {
+	private _currentDate(options: ICurrentDateOptions): string {
 		return `${options.year}-${options.month}-${options.day} ${options.time} ${this._options.timezone}`;
 	}
 
@@ -456,7 +432,7 @@ class OpenedClosed {
 	}
 
 	private _max(numbers: Array<number>): number {
-		if (!this._isArray(numbers)) {
+		if (!Array.isArray(numbers)) {
 			throw new Error(OpenedClosed.ERR_INTERNAL_NOT_ARRAY);
 		}
 
@@ -469,7 +445,7 @@ class OpenedClosed {
 		const closings = this._options.closings;
 		const now = this._now();
 
-		if (this._isArray(closings)) {
+		if (Array.isArray(closings)) {
 			for (const closing of closings) {
 				if (this._dateBetween(now, closing.from, closing.to)) {
 					nowIsClosed = true;
@@ -486,7 +462,7 @@ class OpenedClosed {
 		const closings =
 			"closings" in this._options ? this._options.closings : undefined;
 
-		if (this._isArray(closings)) {
+		if (Array.isArray(closings)) {
 			for (const closing of closings) {
 				if (!this._isObject(closing)) {
 					throw new Error(OpenedClosed.ERR_CLOSINGS_DATE_NOT_OBJECT);
@@ -521,9 +497,9 @@ class OpenedClosed {
 
 		if (this._isObject(openings)) {
 			for (const key in openings) {
-				const timeSpans: Array<TimeSpan> = openings[key];
+				const timeSpans: Array<ITimeSpan> = openings[key];
 
-				if (!this._isArray(timeSpans)) {
+				if (!Array.isArray(timeSpans)) {
 					throw new Error(OpenedClosed.ERR_MALFORMED_OPENINGS);
 				}
 
@@ -553,44 +529,16 @@ class OpenedClosed {
 		return lowerDate <= date && date <= greaterDate;
 	}
 
-	private _isNull(mixed): boolean {
-		return mixed === null;
+	private _isDate(mixed: Date): boolean {
+		return mixed instanceof Date;
 	}
 
-	private _isUndefined(mixed): boolean {
-		return mixed === undefined;
+	private _isObject(mixed: Object): boolean {
+		return mixed instanceof Object;
 	}
 
-	private _isDate(mixed): boolean {
-		return (
-			!this._isNull(mixed) &&
-			!this._isUndefined(mixed) &&
-			mixed.constructor === Date
-		);
-	}
-
-	private _isObject(mixed): boolean {
-		return (
-			!this._isNull(mixed) &&
-			!this._isUndefined(mixed) &&
-			mixed.constructor === Object
-		);
-	}
-
-	private _isArray(mixed): boolean {
-		return (
-			!this._isNull(mixed) &&
-			!this._isUndefined(mixed) &&
-			mixed.constructor === Array
-		);
-	}
-
-	private _isString(mixed): boolean {
-		return (
-			!this._isNull(mixed) &&
-			!this._isUndefined(mixed) &&
-			mixed.constructor === String
-		);
+	private _isString(mixed: String): boolean {
+		return typeof mixed === "string";
 	}
 
 	private _hasOpenings(): boolean {
